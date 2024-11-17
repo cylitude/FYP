@@ -35,7 +35,7 @@ class AboutPage extends StatelessWidget {
                 padding: const EdgeInsets.only(
                     left: 25.0, top: 10, bottom: 10, right: 25),
                 child: Text(
-                  "This is a minimal ecommerce app created by Mitch Koko. I created this frontend template to save you time so that you can focus on the core aspects of your business. Connect this app to your backend and you're good to go. Good luck! ♡",
+                  "This is a Virtual Fashion Assistant Mobile Application that aims to help users visualise themselves wearing clothes in store, helping them save precious time queuing in the dressing room and also payment counters ",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.inversePrimary,
                     height: 1.5,

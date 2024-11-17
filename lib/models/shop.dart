@@ -6,35 +6,35 @@ class Shop extends ChangeNotifier {
   final List<Product> _shop = [
     // product 1
     Product(
-      name: "Product 1",
-      price: 99.99,
-      description: "Item description..",
-      imagePath: 'assets/watch.png',
+      name: "Seiko Diver",
+      price: 588.88,
+      description: "Perfect for utility and daily wear",
+      imagePath: 'assets/SeikoDiver.png',
     ),
 
     // product 2
     Product(
-      name: "Product 2",
-      price: 99.99,
-      description: "Item description..",
-      imagePath: 'assets/shoes.png',
+      name: "Air Jordans 1",
+      price: 188.88,
+      description: "Fly high like Michael Jordan",
+      imagePath: 'assets/AirJordans1.png',
     ),
 
     // product 3
     Product(
-      name: "Product 3",
-      price: 99.99,
-      description: "A modern, sleek & minimal pair of glasses.",
-      imagePath: 'assets/glasses.png',
+      name: "Heizer G1",
+      price: 288.88,
+      description: "A modern and minimalistic pair of sunglasses.",
+      imagePath: 'assets/HeizerG1.png',
     ),
 
     // product 4
     Product(
-      name: "Product 4",
-      price: 99.99,
+      name: "Supreme Hoodie",
+      price: 688.88,
       description:
-          "This is a premium black hoodie made with quality materials.",
-      imagePath: 'assets/hoodie.png',
+          "Made of 100% Cashmere",
+      imagePath: 'assets/BlackSupremeHoodie.png',
     ),
   ];
 

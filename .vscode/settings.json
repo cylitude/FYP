@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Minimal Ecommerce App/minimalecom/windows"
+    "cmake.sourceDirectory": "C:/Virtual Fashion Assistant/virtualfashionassistant/windows",
+    "cmake.ignoreCMakeListsMissing": true
 }

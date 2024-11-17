@@ -42,7 +42,7 @@ class ShopPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 25.0, top: 10, bottom: 0),
             child: Text(
-              "Pick from a selected list of premium products",
+              "Choose from a curated selection of our premium products",
               style: TextStyle(
                   color: Theme.of(context).colorScheme.inversePrimary),
             ),
@@ -70,7 +70,7 @@ class ShopPage extends StatelessWidget {
             padding: const EdgeInsets.only(top: 0, bottom: 25.0),
             child: Center(
               child: Text(
-                "m i n i m a l  x  s h o p",
+                "Virtual Fashion Assistant",
                 style: TextStyle(
                     color: Theme.of(context).colorScheme.inversePrimary),
               ),

@@ -26,7 +26,7 @@ class IntroPage extends StatelessWidget {
 
             // message
             Text(
-              "MINIMAL SHOP",
+              "Fashion Assistant",
               style: GoogleFonts.bebasNeue(
                 fontSize: 48,
                 // color: Theme.of(context).colorScheme.inversePrimary,
@@ -37,7 +37,7 @@ class IntroPage extends StatelessWidget {
             const SizedBox(height: 10),
 
             Text(
-              "Made with Flutter ♡",
+              "For Fashion Geeks",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
