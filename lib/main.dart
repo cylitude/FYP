@@ -5,6 +5,7 @@ import 'pages/about_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/shop_page.dart';
 import 'pages/intro_page.dart';
+import 'pages/login_page.dart'; // Import LoginPage
 import 'pages/settings_page.dart';
 import 'theme/theme_provider.dart';
 
@@ -12,12 +13,12 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        // theme provider
+        // Theme provider
         ChangeNotifierProvider(
           create: (context) => ThemeProvider(),
         ),
 
-        // shop provider
+        // Shop provider
         ChangeNotifierProvider(
           create: (context) => Shop(),
         ),
@@ -34,10 +35,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const IntroPage(),
+      initialRoute: '/intro_page', // Start with the Intro Page
       theme: Provider.of<ThemeProvider>(context).themeData,
       routes: {
         '/intro_page': (context) => const IntroPage(),
+        '/login_page': (context) => LoginPage(),
         '/shop_page': (context) => const ShopPage(),
         '/cart_page': (context) => const CartPage(),
         '/settings_page': (context) => const SettingsPage(),

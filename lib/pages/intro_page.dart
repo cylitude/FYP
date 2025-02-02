@@ -24,12 +24,11 @@ class IntroPage extends StatelessWidget {
 
             const SizedBox(height: 75),
 
-            // message
+            // Message
             Text(
               "Fashion Assistant",
               style: GoogleFonts.bebasNeue(
                 fontSize: 48,
-                // color: Theme.of(context).colorScheme.inversePrimary,
                 letterSpacing: 2,
               ),
             ),
@@ -45,9 +44,9 @@ class IntroPage extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // button
+            // Button to navigate to LoginPage
             MyButton(
-              onTap: () => Navigator.pushNamed(context, '/shop_page'),
+              onTap: () => Navigator.pushReplacementNamed(context, '/login_page'),
               widget: Icon(
                 Icons.arrow_forward,
                 color: Theme.of(context).colorScheme.inversePrimary,
