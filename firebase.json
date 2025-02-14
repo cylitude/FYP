@@ -1,10 +1,1 @@
-{
-  "hosting": {
-    "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ]
-  }
-}
+{"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"]},"flutter":{"platforms":{"android":{"default":{"projectId":"virtualfashionassistant-3fcb8","appId":"1:559381224141:android:3411670b95c9d644b5e784","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"virtualfashionassistant-3fcb8","configurations":{"android":"1:559381224141:android:3411670b95c9d644b5e784","ios":"1:559381224141:ios:225ebd6fe711060eb5e784","macos":"1:559381224141:ios:225ebd6fe711060eb5e784","web":"1:559381224141:web:f1602524c683bdc9b5e784","windows":"1:559381224141:web:7a164c3e933142b5b5e784"}}}}}}

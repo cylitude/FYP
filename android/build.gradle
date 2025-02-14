@@ -1,24 +1,7 @@
-buildscript {
-    ext.kotlin_version = '2.1.0'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.0.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
 plugins {
-    id 'java'
-    id 'base' // Use this only if necessary for lifecycle tasks
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    id 'com.android.application' version '8.2.0' apply false
+    id 'com.google.gms.google-services' version '4.3.15' apply false
+    id 'org.jetbrains.kotlin.android' version '1.9.21' apply false
 }
 
 allprojects {
@@ -29,10 +12,28 @@ allprojects {
 }
 
 rootProject.buildDir = '../build'
+
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
+
 subprojects {
     project.evaluationDependsOn(':app')
 }
 
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
+
+// Set Java compatibility to 17
+//java {
+    //sourceCompatibility = JavaVersion.VERSION_17
+    //targetCompatibility = JavaVersion.VERSION_17
+//}
+
+// Ensure Kotlin is using JVM 17
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}

@@ -43,11 +43,28 @@ class MyDrawer extends StatelessWidget {
                 text: "C A R T",
                 icon: Icons.shopping_cart,
                 onTap: () {
-                  // pop drawer first
                   Navigator.pop(context);
-
-                  // go to settings page
                   Navigator.pushNamed(context, '/cart_page');
+                },
+              ),
+
+              // chatbot tile
+              MyListTile(
+                text: "C H A T B O T",
+                icon: Icons.chat,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/chatbot_page');
+                },
+              ),
+
+              // analytics tile
+              MyListTile(
+                text: "A N A L Y T I C S",
+                icon: Icons.analytics,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/analytics_page');
                 },
               ),
 
@@ -56,10 +73,7 @@ class MyDrawer extends StatelessWidget {
                 text: "S E T T I N G S",
                 icon: Icons.settings,
                 onTap: () {
-                  // pop drawer first
                   Navigator.pop(context);
-
-                  // go to settings page
                   Navigator.pushNamed(context, '/settings_page');
                 },
               ),
@@ -71,10 +85,7 @@ class MyDrawer extends StatelessWidget {
                   text: "A B O U T",
                   icon: Icons.info,
                   onTap: () {
-                    // pop drawer first
                     Navigator.pop(context);
-
-                    // go to about page
                     Navigator.pushNamed(context, '/about_page');
                   },
                 ),
@@ -82,14 +93,13 @@ class MyDrawer extends StatelessWidget {
             ],
           ),
 
-          // about tile
+          // exit tile
           Padding(
             padding: const EdgeInsets.only(bottom: 25.0),
             child: MyListTile(
               text: "E X I T",
               icon: Icons.logout,
               onTap: () {
-                // go to about page
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/intro_page', (route) => false);
               },
