@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'virtualfashionassistant-3fcb8.firebaseapp.com',
     storageBucket: 'virtualfashionassistant-3fcb8.firebasestorage.app',
   );
+
 }
