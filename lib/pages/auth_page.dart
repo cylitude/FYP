@@ -9,17 +9,18 @@ class AuthPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
+      // Listens to auth state changes
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // User is logged in
+        // If the user is logged in, go to ShopPage
         if (snapshot.hasData) {
           return const ShopPage();
         }
-
-        // User is NOT logged in
-        return const IntroPage();
+        // Otherwise, show IntroPage
+        else {
+          return const IntroPage();
+        }
       },
     );
   }
 }
-

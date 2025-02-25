@@ -3,34 +3,38 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  // Text editing controllers
+class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   String errorMessage = '';
 
-  void signUserIn(BuildContext context) async {
+  void signUserUp(BuildContext context) async {
+    if (passwordController.text.trim() != confirmPasswordController.text.trim()) {
+      setState(() => errorMessage = 'Passwords do not match');
+      return;
+    }
+
     try {
-      // Attempt to sign in
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // If successful, navigate to ShopPage
       Navigator.pushReplacementNamed(context, '/shop_page');
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        setState(() => errorMessage = 'User does not exist');
-      } else if (e.code == 'wrong-password') {
-        setState(() => errorMessage = 'Wrong password');
+      if (e.code == 'email-already-in-use') {
+        setState(() => errorMessage = 'Email is already in use');
+      } else if (e.code == 'weak-password') {
+        setState(() => errorMessage = 'Password is too weak');
       } else {
         setState(() => errorMessage = 'Something went wrong: ${e.message}');
       }
@@ -54,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
               const Icon(Icons.lock, size: 100),
               const SizedBox(height: 50),
               Text(
-                "Welcome back, you've been missed!",
+                "Create a new account",
                 style: TextStyle(
                   color: Colors.grey[700],
                   fontSize: 16,
@@ -72,12 +76,10 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: 'Password',
                 obscureText: true,
               ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  'Forgot Password?',
-                  style: TextStyle(color: Colors.grey[600]),
-                ),
+              MyTextField(
+                controller: confirmPasswordController,
+                hintText: 'Confirm Password',
+                obscureText: true,
               ),
               const SizedBox(height: 25),
               if (errorMessage.isNotEmpty) ...[
@@ -90,7 +92,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
               ],
-              MySignin(onTap: () => signUserIn(context)),
+              MySignin(onTap: () => signUserUp(context)),
               const SizedBox(height: 50),
               Row(
                 children: [
@@ -110,19 +112,20 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               const SizedBox(height: 25),
-              // Not a member? Register now
+              // Already have an account? Login now
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Not a member?', style: TextStyle(color: Colors.grey[700])),
+                  Text('Already have an account?',
+                      style: TextStyle(color: Colors.grey[700])),
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      // Directly navigate to the RegisterPage route
-                      Navigator.pushReplacementNamed(context, '/register_page');
+                      // Directly navigate back to the LoginPage
+                      Navigator.pushReplacementNamed(context, '/login_page');
                     },
                     child: const Text(
-                      'Register now',
+                      'Login now',
                       style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,

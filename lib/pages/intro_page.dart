@@ -14,17 +14,11 @@ class IntroPage extends StatelessWidget {
         padding: const EdgeInsets.all(50.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Center(
-              child: Lottie.asset(
-                'assets/trolley.json',
-              ),
+              child: Lottie.asset('assets/trolley.json'),
             ),
-
             const SizedBox(height: 75),
-
-            // Message
             Text(
               "Fashion Assistant",
               style: GoogleFonts.bebasNeue(
@@ -32,18 +26,14 @@ class IntroPage extends StatelessWidget {
                 letterSpacing: 2,
               ),
             ),
-
             const SizedBox(height: 10),
-
             Text(
               "For Fashion Geeks",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
             ),
-
             const SizedBox(height: 25),
-
             // Button to navigate to LoginPage
             MyButton(
               onTap: () => Navigator.pushReplacementNamed(context, '/login_page'),
