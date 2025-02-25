@@ -1,11 +1,10 @@
-# minimalecom
+# my final year project
 
-A new Flutter project.
+A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
+
+25th Feb Updates - Done up the login page with Firebase Authentication 
 
 ## Getting Started
-
-This project is a starting point for a Flutter application.
-
 A few resources to get you started if this is your first Flutter project:
 
 - [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
