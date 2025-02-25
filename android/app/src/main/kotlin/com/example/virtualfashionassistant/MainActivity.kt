@@ -1,4 +1,4 @@
-package com.example.minimalecom
+package com.example.virtualfashionassistant
 
 import io.flutter.embedding.android.FlutterActivity
 

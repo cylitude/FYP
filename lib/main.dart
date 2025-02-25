@@ -5,10 +5,11 @@ import 'pages/about_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/shop_page.dart';
 import 'pages/intro_page.dart';
-import 'pages/login_page.dart'; 
+import 'pages/login_page.dart';
 import 'pages/settings_page.dart';
-import 'pages/chatbot_page.dart'; 
-import 'pages/analytics_page.dart'; 
+import 'pages/chatbot_page.dart';
+import 'pages/analytics_page.dart';
+import 'pages/auth_page.dart'; 
 import 'theme/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -16,7 +17,7 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
   runApp(
@@ -44,9 +45,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      initialRoute: '/intro_page', // Start with the Intro Page
+      initialRoute: '/auth_page', // Updated to use AuthPage first
       theme: Provider.of<ThemeProvider>(context).themeData,
       routes: {
+        '/auth_page': (context) => const AuthPage(), // Added AuthPage route
         '/intro_page': (context) => const IntroPage(),
         '/login_page': (context) => LoginPage(),
         '/shop_page': (context) => const ShopPage(),

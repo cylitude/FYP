@@ -1,37 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
-
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatelessWidget {
-  LoginPage({super.key}); // Removed const
+  LoginPage({super.key});
 
   // Text editing controllers
-  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // Dummy sign-in method (No backend logic yet)
-  void signUserIn(BuildContext context) {
-    // Simulate a delay to mimic login processing (Optional)
-    Future.delayed(const Duration(seconds: 1), () {
-      // Navigate to ShopPage
+  // Sign user in method with error handling
+  void signUserIn(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Navigate to ShopPage after successful login
       Navigator.pushReplacementNamed(context, '/shop_page');
-    });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login Failed: $e')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // This allows the screen to resize when the keyboard opens
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.grey[300],
       body: SafeArea(
-        child: Center(
+        // Wrap everything in a SingleChildScrollView so it can scroll if needed
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            // You can change crossAxisAlignment if you want left-aligned text, etc.
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 50),
 
-              // Logo
+              // Lock icon
               const Icon(
                 Icons.lock,
                 size: 100,
@@ -46,18 +58,17 @@ class LoginPage extends StatelessWidget {
                   color: Colors.grey[700],
                   fontSize: 16,
                 ),
+                textAlign: TextAlign.center,
               ),
 
               const SizedBox(height: 25),
 
-              // Username text field
+              // Email text field
               MyTextField(
-                controller: usernameController,
-                hintText: 'Username',
+                controller: emailController,
+                hintText: 'Email',
                 obscureText: false,
               ),
-
-              const SizedBox(height: 10),
 
               // Password text field
               MyTextField(
@@ -66,57 +77,47 @@ class LoginPage extends StatelessWidget {
                 obscureText: true,
               ),
 
-              const SizedBox(height: 10),
-
-              // Forgot password
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ],
+              // Forgot password link
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'Forgot Password?',
+                  style: TextStyle(color: Colors.grey[600]),
                 ),
               ),
 
               const SizedBox(height: 25),
 
-              // Sign in button (Navigates to ShopPage)
+              // Sign in button
               MySignin(
-                onTap: () => signUserIn(context), // Call the dummy login function
+                onTap: () => signUserIn(context),
               ),
 
               const SizedBox(height: 50),
 
               // Or continue with
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      thickness: 0.5,
+                      color: Colors.grey[400],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Text(
-                        'Or continue with',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Text(
+                      'Or continue with',
+                      style: TextStyle(color: Colors.grey[700]),
                     ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey[400],
-                      ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      thickness: 0.5,
+                      color: Colors.grey[400],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 25),
