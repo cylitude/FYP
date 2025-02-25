@@ -14,7 +14,7 @@ class MyDrawer extends StatelessWidget {
         children: [
           Column(
             children: [
-              // drawer header: logo
+              // Drawer header: logo
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 25.0),
                 child: DrawerHeader(
@@ -28,17 +28,14 @@ class MyDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 25),
-
-              // shop tile
+              // Shop tile
               MyListTile(
                 text: "S H O P",
                 icon: Icons.home,
                 onTap: () => Navigator.pop(context),
               ),
-
-              // cart tile
+              // Cart tile
               MyListTile(
                 text: "C A R T",
                 icon: Icons.shopping_cart,
@@ -47,8 +44,16 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/cart_page');
                 },
               ),
-
-              // chatbot tile
+              // Orders tile with receipt icon
+              MyListTile(
+                text: "O R D E R S",
+                icon: Icons.receipt,
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/orders_page');
+                },
+              ),
+              // Chatbot tile
               MyListTile(
                 text: "C H A T B O T",
                 icon: Icons.chat,
@@ -57,8 +62,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/chatbot_page');
                 },
               ),
-
-              // analytics tile
+              // Analytics tile
               MyListTile(
                 text: "A N A L Y T I C S",
                 icon: Icons.analytics,
@@ -67,8 +71,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/analytics_page');
                 },
               ),
-
-              // settings tile
+              // Settings tile
               MyListTile(
                 text: "S E T T I N G S",
                 icon: Icons.settings,
@@ -77,8 +80,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/settings_page');
                 },
               ),
-
-              // about tile
+              // About tile
               Padding(
                 padding: const EdgeInsets.only(bottom: 25.0),
                 child: MyListTile(
@@ -92,12 +94,11 @@ class MyDrawer extends StatelessWidget {
               ),
             ],
           ),
-
-          // exit tile
+          // Exit tile
           Padding(
             padding: const EdgeInsets.only(bottom: 25.0),
             child: MyListTile(
-              text: "E X I T",
+              text: "L O G O U T",
               icon: Icons.logout,
               onTap: () {
                 Navigator.pushNamedAndRemoveUntil(

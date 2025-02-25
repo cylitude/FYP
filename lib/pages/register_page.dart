@@ -4,7 +4,8 @@ import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  // Use super parameter for 'key'
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -13,22 +14,29 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   String errorMessage = '';
 
-  void signUserUp(BuildContext context) async {
+  // Async sign-up method
+  Future<void> signUserUp() async {
+    // 1) Check matching passwords
     if (passwordController.text.trim() != confirmPasswordController.text.trim()) {
       setState(() => errorMessage = 'Passwords do not match');
       return;
     }
 
     try {
+      // 2) Attempt to create user
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      // 3) Check if widget is still in the tree
+      if (!mounted) return;
+
+      // 4) Navigate to ShopPage
       Navigator.pushReplacementNamed(context, '/shop_page');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
@@ -92,7 +100,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 10),
               ],
-              MySignin(onTap: () => signUserUp(context)),
+              // Use signUserUp without passing context
+              MySignin(onTap: signUserUp),
               const SizedBox(height: 50),
               Row(
                 children: [
@@ -116,12 +125,13 @@ class _RegisterPageState extends State<RegisterPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Already have an account?',
-                      style: TextStyle(color: Colors.grey[700])),
+                  Text(
+                    'Already have an account?',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      // Directly navigate back to the LoginPage
                       Navigator.pushReplacementNamed(context, '/login_page');
                     },
                     child: const Text(

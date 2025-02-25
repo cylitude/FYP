@@ -11,6 +11,7 @@ import 'pages/settings_page.dart';
 import 'pages/about_page.dart';
 import 'pages/chatbot_page.dart';
 import 'pages/analytics_page.dart';
+import 'pages/orders_page.dart'; 
 import 'theme/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -34,7 +35,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
         '/register_page': (context) => const RegisterPage(),
         '/shop_page': (context) => const ShopPage(),
         '/cart_page': (context) => const CartPage(),
+        '/orders_page': (context) => const OrdersPage(), 
         '/settings_page': (context) => const SettingsPage(),
         '/about_page': (context) => const AboutPage(),
         '/chatbot_page': (context) => ChatbotPage(),

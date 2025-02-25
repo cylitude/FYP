@@ -4,7 +4,8 @@ import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  // Use super parameter for 'key'
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -17,13 +18,18 @@ class _LoginPageState extends State<LoginPage> {
 
   String errorMessage = '';
 
-  void signUserIn(BuildContext context) async {
+  // Async sign-in method
+  Future<void> signUserIn() async {
     try {
       // Attempt to sign in
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      // After the async call, check if widget is still mounted
+      if (!mounted) return;
+
       // If successful, navigate to ShopPage
       Navigator.pushReplacementNamed(context, '/shop_page');
     } on FirebaseAuthException catch (e) {
@@ -90,7 +96,8 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
               ],
-              MySignin(onTap: () => signUserIn(context)),
+              // Use signUserIn without passing context
+              MySignin(onTap: signUserIn),
               const SizedBox(height: 50),
               Row(
                 children: [
@@ -114,11 +121,13 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Not a member?', style: TextStyle(color: Colors.grey[700])),
+                  Text(
+                    'Not a member?',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
                   const SizedBox(width: 4),
                   GestureDetector(
                     onTap: () {
-                      // Directly navigate to the RegisterPage route
                       Navigator.pushReplacementNamed(context, '/register_page');
                     },
                     child: const Text(
