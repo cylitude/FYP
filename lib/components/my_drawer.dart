@@ -44,7 +44,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/cart_page');
                 },
               ),
-              // Orders tile with receipt icon
+              // Orders tile
               MyListTile(
                 text: "O R D E R S",
                 icon: Icons.receipt,
@@ -80,15 +80,15 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/settings_page');
                 },
               ),
-              // About tile
+              // Profile tile (replaces "About")
               Padding(
                 padding: const EdgeInsets.only(bottom: 25.0),
                 child: MyListTile(
-                  text: "A B O U T",
-                  icon: Icons.info,
+                  text: "P R O F I L E",
+                  icon: Icons.person,
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/about_page');
+                    Navigator.pushNamed(context, '/profile_page');
                   },
                 ),
               ),
@@ -102,7 +102,10 @@ class MyDrawer extends StatelessWidget {
               icon: Icons.logout,
               onTap: () {
                 Navigator.pushNamedAndRemoveUntil(
-                    context, '/intro_page', (route) => false);
+                  context,
+                  '/intro_page',
+                  (route) => false,
+                );
               },
             ),
           ),

@@ -4,8 +4,7 @@ import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
 
 class RegisterPage extends StatefulWidget {
-  // Use super parameter for 'key'
-  const RegisterPage({super.key});
+  const RegisterPage({super.key}); // Use super parameter
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -36,8 +35,9 @@ class _RegisterPageState extends State<RegisterPage> {
       // 3) Check if widget is still in the tree
       if (!mounted) return;
 
-      // 4) Navigate to ShopPage
-      Navigator.pushReplacementNamed(context, '/shop_page');
+      // 4) Navigate to MeasurementsPage instead of ShopPage
+      //    (Ensure '/measurements_page' is defined in your MaterialApp routes)
+      Navigator.pushReplacementNamed(context, '/measurements_page');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         setState(() => errorMessage = 'Email is already in use');
@@ -100,7 +100,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 10),
               ],
-              // Use signUserUp without passing context
               MySignin(onTap: signUserUp),
               const SizedBox(height: 50),
               Row(
