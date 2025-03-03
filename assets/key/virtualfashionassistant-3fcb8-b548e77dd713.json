@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "virtualfashionassistant-3fcb8",
+  "private_key_id": "b548e77dd71369b5058071d04a1efca4ac1751ae",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDvR3P+xGRnI1yD\nNWiHhCq42SQ8pAithLqIK5/sZ0a2oAI1BhqW3BQYT50AAjL2Y/evl17ufz7eoIB2\nTg2pzNcess5/Hr63KbxsTixyDxDpB1tXcMtMo2TZlCai9XXJ4aQfp2suPqCVMxAQ\nWW0JG7g0ZCOnS2F/naNYoQeN67A8CUGPmwzusAsDBPV8sl37CZ8tJsOoXrOzHArw\nUms3MFj4FQ1a3irvBDbDmomeUZe3b2dNwmtDtIgBEqYIY3F6dYYgHHWmrHXaMzBI\nZ0Xlynx5vWiaTLfgRYH0m2FDLc1wmQF385r1gmFgZ97fM0uHsNRverLBT4XmvMDg\nwM+dCg0vAgMBAAECggEAVEM+Zv50ORnrz0z0lZyGivf02eIOKETwh1mNhOvNrCxm\n+pM+s9emv/TxXfpoRfpoVA6jYKuw0SeGdaMBDsXTD716GKwUD16EO0PARR5nHxj3\nIrDW9xMnRbP1czerlj9+06LajLuDQ2drBcboLef0E4ccQyK5n/48cs6qYWEZe9o8\nO9lSWKTJUPMqwLrjsS5yljgZIf2cHZRmRS7XhMTcJ/JKdboGkWlc5zJjrHYzgWc3\nFXvwzV9rnMTvWriO1YxC3V5u6ubMqaC/UboyLNuhUfZo+s+j8Khjzig+UIqRsbM/\nITSvUxtqgWkY8Dn5HKKuxYw/AeKQNT7IXeJVWRIwyQKBgQD91k2OcWbDB+PYYfkh\nJ4ikH/WBNCGGHzAi0V4ofZ4e7iVzdDL0kAdFmq1LnlMHjZFTtMb9z52ra9TZA/dm\ndz6wcRbycq1JYrxNhbF+4OXSik4AXWOvrjGx4x8o6WP6egJMW1MMG6H7pJuDjE/W\nuWlHgg/kMYmlXqOKrqQQtZLkDQKBgQDxUWUHpYFuV1h9a5c2dVm9Ej4weO8TYv+k\nQzxlvJKxhDlWqLwi0k4DLb+ndNqAmCO1ddSLtbs0sskKo5ZBGPzF2RG7q6RPZEUl\n+ZEppsyRvICOe1puhOOchvmGZhdQAQ9+aRa1KpN/oAFaH0m2dzT6N7ambZdVJcEC\nf4G//Jn7KwKBgQC/6p1syxSU9Iwx97Eyff9zh65I569JBp+QU5fLKV65p/is1/gG\nrDazS4UmnSfNmB1+mjmxgJ2HE9oz0inlUNcW9AoTeNzHlV0lh6VxdnyMuIDNCc7q\n7tsn0b6nYf5zTHgcXxflGadY6VWjGhzrDfgpVo7JSyL04x7nJa9p6r6KqQKBgQCg\nT3MvVjqao7nsb9ofWmwIF6Nqrhwco+qyI9xutYw6E13H/QYml9EteWnVg+JYBTnL\npYBSY6L+yjqWL8B0dHYPtTl7k/Xuq+zn4lgV9HH36uL4RGf5/Zv7cws2xoF8K4gw\ncP2d0q/z28aqKRjd92khRHu5KhqbfR4wW6ZFdTiRywKBgAUfKgzKaydfa9oTGbC4\n0rsrnbAxTBvUPJdqt9L/7+dfrkXT4z/7Caq4kiV67MffE47B4RqTvMoSH1hZdHpi\nG7BTktQXQIlcxYXNs1FDiQbCFdvzeg+xNGkz6uLPjX7dK+x9md9hG+25rnBZlTQu\n/Zij5KRDTDTB3TZymNtdHTIQ\n-----END PRIVATE KEY-----\n",
+  "client_email": "virtualfashionassistant@virtualfashionassistant-3fcb8.iam.gserviceaccount.com",
+  "client_id": "117893071721457220937",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/virtualfashionassistant%40virtualfashionassistant-3fcb8.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
