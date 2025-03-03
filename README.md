@@ -5,6 +5,8 @@ A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to 
 3rd Mar Updates
 1. I created a chatbot page and integrated Dialogflow. However, the API does not call and reflect on the screen. Will need to see 
 if I want to swap out the JSON file or continue troubleshooting
+2. Added "Measurements" and "Profile Page" to obtain key details in helping us streamline workflows for our Users as a Virtual Fashion Assistant.
+Next steps include Measurement >> Clothing Size recommendations, Change in Product Catalogue to fit this need, working on Payment Details 
 
 25th Feb Updates
 1. Done with Firebase Authentication feature for Login Page (Currently missing "Forgot Password" functionality)
