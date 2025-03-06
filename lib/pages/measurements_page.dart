@@ -28,13 +28,51 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
   // Gender dropdown
   String _selectedGender = 'Male';
 
-  // Optional: You can display errors to the user if something goes wrong
+  // Optional: Display errors if something goes wrong
   String _errorMessage = '';
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _loadMeasurements();
+  }
+
+  /// Loads the user's measurement data from Firestore and
+  /// populates the controllers + gender dropdown.
+  Future<void> _loadMeasurements() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          _errorMessage = 'No logged in user found.';
+        });
+        return;
+      }
+
+      final uid = user.uid;
+
+      final docSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() ?? {};
+        setState(() {
+          _selectedGender = data['gender'] ?? 'Male';
+          _heightController.text = data['height'] ?? '';
+          _weightController.text = data['weight'] ?? '';
+          _shoeSizeController.text = data['shoeSize'] ?? '';
+          _chestController.text = data['chest'] ?? '';
+          _shoulderController.text = data['shoulder'] ?? '';
+          _waistController.text = data['waist'] ?? '';
+          _legLengthController.text = data['legLength'] ?? '';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading measurements: $e';
+      });
+    }
   }
 
   @override
@@ -48,6 +86,11 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
     _waistController.dispose();
     _legLengthController.dispose();
     super.dispose();
+  }
+
+  /// Helper to determine label color: light blue if empty, black if filled
+  Color _getLabelColor(String text) {
+    return text.trim().isEmpty ? Colors.lightBlue : Colors.black;
   }
 
   Future<void> _saveAndContinue() async {
@@ -85,17 +128,17 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
       // 4. Save to Firestore (users collection, doc = user.uid)
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'gender': gender,
-        'height': height,
-        'weight': weight,
-        'shoeSize': shoeSize, // EUR shoe size
-        // Advanced fields are optional; store them even if empty
+        'height': height,        // now in metres
+        'weight': weight,        // in kg
+        'shoeSize': shoeSize,    // EUR shoe size
+        // Advanced fields
         'chest': chest,
         'shoulder': shoulder,
         'waist': waist,
         'legLength': legLength,
       }, SetOptions(merge: true));
 
-      // 5. Navigate to the next page
+      // 5. If the widget is still mounted, navigate
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/shop_page');
     } catch (e) {
@@ -108,21 +151,17 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
 
   @override
   Widget build(BuildContext context) {
-    // Updated InputDecoration to remove the white fill
-    // and only change the border color on focus.
+    // Base InputDecoration
     final baseDecoration = InputDecoration(
-      labelStyle: const TextStyle(color: Colors.black),
       border: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey, width: 1.0),
       ),
       enabledBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey, width: 1.0),
       ),
-      // Only the border turns black and thicker when focused
       focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.black, width: 2.0),
       ),
-      // Make fill color transparent or match the background so it doesn't go white
       fillColor: Colors.transparent,
       filled: true,
     );
@@ -169,6 +208,9 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
                     value: _selectedGender,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Gender',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_selectedGender),
+                      ),
                     ),
                     items: const [
                       DropdownMenuItem(value: 'Male', child: Text('Male')),
@@ -184,31 +226,46 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
                     },
                   ),
                   const SizedBox(height: 16),
-                  // Height
+
+                  // Height (metres)
                   TextField(
                     controller: _heightController,
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
-                      labelText: 'Height (cm)',
+                      labelText: 'Height (metres)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_heightController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
-                  // Weight
+
+                  // Weight (kg)
                   TextField(
                     controller: _weightController,
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Weight (kg)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_weightController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
+
                   // Shoe Size (EUR)
                   TextField(
                     controller: _shoeSizeController,
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Shoe Size (EUR)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_shoeSizeController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                 ],
               ),
@@ -225,34 +282,53 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Chest Circumference (cm)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_chestController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
+
                   // Shoulder Width
                   TextField(
                     controller: _shoulderController,
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Shoulder Width (cm)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_shoulderController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
+
                   // Waist Circumference
                   TextField(
                     controller: _waistController,
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Waist Circumference (cm)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_waistController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                   const SizedBox(height: 16),
+
                   // Leg Length
                   TextField(
                     controller: _legLengthController,
                     keyboardType: TextInputType.number,
                     decoration: baseDecoration.copyWith(
                       labelText: 'Leg Length (cm)',
+                      labelStyle: TextStyle(
+                        color: _getLabelColor(_legLengthController.text),
+                      ),
                     ),
+                    onChanged: (value) => setState(() {}),
                   ),
                 ],
               ),

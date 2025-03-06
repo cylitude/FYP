@@ -23,6 +23,47 @@ class _ProfilePageState extends State<ProfilePage> {
   String _errorMessage = '';
 
   @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  /// Fetches the user's existing profile data from Firestore and
+  /// sets the text fields accordingly.
+  Future<void> _loadUserData() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          _errorMessage = 'No logged-in user found. Please sign in first.';
+        });
+        return;
+      }
+
+      final uid = user.uid;
+
+      final docSnapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() ?? {};
+        setState(() {
+          _firstNameController.text = data['firstName'] ?? '';
+          _lastNameController.text = data['lastName'] ?? '';
+          _shippingLine1Controller.text = data['shippingLine1'] ?? '';
+          _shippingLine2Controller.text = data['shippingLine2'] ?? '';
+          _billingLine1Controller.text = data['billingLine1'] ?? '';
+          _billingLine2Controller.text = data['billingLine2'] ?? '';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading profile data: $e';
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
@@ -31,6 +72,12 @@ class _ProfilePageState extends State<ProfilePage> {
     _billingLine1Controller.dispose();
     _billingLine2Controller.dispose();
     super.dispose();
+  }
+
+  // Helper method to get label color:
+  // If the field is empty, label is light blue; if not, label is black.
+  Color _getLabelColor(String text) {
+    return text.trim().isEmpty ? Colors.lightBlue : Colors.black;
   }
 
   // Save data to Firestore
@@ -46,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       final uid = user.uid;
 
-      // 2. Basic validation example (First & Last Name)
+      // 2. Basic validation (First & Last Name)
       if (_firstNameController.text.trim().isEmpty ||
           _lastNameController.text.trim().isEmpty) {
         setState(() {
@@ -73,14 +120,16 @@ class _ProfilePageState extends State<ProfilePage> {
         'billingLine2': billingLine2,
       }, SetOptions(merge: true));
 
-      // 5. If save is successful, clear the error
+      // 5. Clear any error message
       setState(() {
         _errorMessage = '';
       });
 
-      // For example, you could now pop back or navigate:
-      // Navigator.pop(context);
-      // or Navigator.pushReplacementNamed(context, '/some_next_page');
+      // 6. Check if widget is still mounted before using context
+      if (!mounted) return;
+
+      // 7. Navigate back to the previous page
+      Navigator.pop(context);
 
     } catch (e) {
       setState(() {
@@ -104,6 +153,8 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       fillColor: Colors.transparent,
       filled: true,
+      // We'll set the labelStyle dynamically for each field,
+      // so we keep a default here if needed.
       labelStyle: const TextStyle(color: Colors.black),
     );
 
@@ -158,7 +209,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'First Name',
+                    // If empty, label = light blue, else black
+                    labelStyle: TextStyle(
+                      color: _getLabelColor(_firstNameController.text),
+                    ),
                   ),
+                  // Rebuild so label color changes if user types or deletes
+                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
 
@@ -168,7 +225,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'Last Name',
+                    labelStyle: TextStyle(
+                      color: _getLabelColor(_lastNameController.text),
+                    ),
                   ),
+                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
 
@@ -178,7 +239,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'Shipping Address Line 1',
+                    labelStyle: TextStyle(
+                      color: _getLabelColor(_shippingLine1Controller.text),
+                    ),
                   ),
+                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
 
@@ -188,7 +253,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'Shipping Address Line 2',
+                    labelStyle: TextStyle(
+                      color: _getLabelColor(_shippingLine2Controller.text),
+                    ),
                   ),
+                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
 
@@ -198,7 +267,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'Billing Address Line 1',
+                    labelStyle: TextStyle(
+                      color: _getLabelColor(_billingLine1Controller.text),
+                    ),
                   ),
+                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
 
@@ -208,7 +281,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'Billing Address Line 2',
+                    labelStyle: TextStyle(
+                      color: _getLabelColor(_billingLine2Controller.text),
+                    ),
                   ),
+                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
               ],
