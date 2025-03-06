@@ -50,6 +50,7 @@ flutter:
     - assets/shoes.png
     - assets/watch.png
     - assets/trolley.json
+    - assets/WhiteShirt.png
 
     # If you have more images, add them here.
     # If you have subfolders (e.g., assets/pages/), add them similarly.

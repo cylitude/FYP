@@ -119,20 +119,23 @@ class MyProductTile extends StatelessWidget {
                 ),
               ),
 
-              // add to cart
+              // add to cart button with updated icon properties
               Container(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: Theme.of(context).colorScheme.secondary,
-                      width: 1.5),
+                    color: Theme.of(context).colorScheme.secondary,
+                    width: 1.5,
+                  ),
                 ),
                 child: IconButton(
+                  iconSize: 30, // slightly bigger icon size
                   onPressed: () => addToCart(context),
+                  // Updated icon: shopping cart in grey
                   icon: Icon(
-                    Icons.add,
-                    color: Theme.of(context).colorScheme.inversePrimary,
+                    Icons.shopping_cart,
+                    color: Colors.grey,
                   ),
                 ),
               )

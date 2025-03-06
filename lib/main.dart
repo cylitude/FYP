@@ -8,9 +8,7 @@ import 'pages/register_page.dart';
 import 'pages/shop_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/settings_page.dart';
-// Remove or comment out the old import
-// import 'pages/about_page.dart';
-import 'pages/profile_page.dart'; // <-- new import
+import 'pages/profile_page.dart'; 
 import 'pages/chatbot_page.dart';
 import 'pages/analytics_page.dart';
 import 'pages/orders_page.dart';

@@ -6,10 +6,10 @@ class Shop extends ChangeNotifier {
   final List<Product> _shop = [
     // product 1
     Product(
-      name: "Seiko Diver",
-      price: 588.88,
-      description: "Perfect for utility and daily wear",
-      imagePath: 'assets/SeikoDiver.png',
+      name: "White Shirt",
+      price: 58.88,
+      description: "Perfect for a casual date",
+      imagePath: 'assets/WhiteShirt.png',
     ),
     // product 2
     Product(
