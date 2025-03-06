@@ -2,6 +2,9 @@
 
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
+6th Mar Upgrades
+1. Did some minor bug fixes and UI changes to make it more seamless, also ensuring Firestore Data Capture 
+
 3rd Mar Updates
 1. I created a chatbot page and integrated Dialogflow. However, the API does not call and reflect on the screen. Will need to see 
 if I want to swap out the JSON file or continue troubleshooting
