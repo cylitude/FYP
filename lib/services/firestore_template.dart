@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/product.dart';
+import '../models/shop.dart'; // for CartItem, Product
 
 class FirestoreService {
   // Reference to the 'orders' collection in Firestore
@@ -9,22 +9,23 @@ class FirestoreService {
   // CREATE: Add a new order to Firestore
   Future<void> createOrder({
     required String userId,
-    required List<Product> cartItems,
+    required List<CartItem> cartItems,
     required double totalPrice,
   }) {
-    // Convert each Product in cartItems to a Map for Firestore
-    final itemsData = cartItems.map((product) {
+    // Convert each CartItem to a Map for Firestore
+    final itemsData = cartItems.map((cartItem) {
       return {
-        'name': product.name,
-        'price': product.price,
-        'description': product.description,
-        'imagePath': product.imagePath,
+        'name': cartItem.product.name,
+        'price': cartItem.product.price,
+        'description': cartItem.product.description,
+        'imagePath': cartItem.product.imagePath,
+        'size': cartItem.size, // store the chosen size
       };
     }).toList();
 
     return orders.add({
       'userId': userId,          // which user placed the order
-      'items': itemsData,        // list of products in the order
+      'items': itemsData,        // list of items (product + size) in the order
       'totalPrice': totalPrice,  // total price of this order
       'timestamp': Timestamp.now(),
     });

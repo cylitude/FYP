@@ -8,7 +8,6 @@ import '../models/shop.dart';
 import '../services/firestore_template.dart';
 
 class CartPage extends StatefulWidget {
-  // Use super parameter for 'key'
   const CartPage({super.key});
 
   @override
@@ -18,14 +17,14 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   // Pay button was pressed
   Future<void> payNow() async {
-    // 1) Access the Shop provider to get the cart items
+    // 1) Access the Shop provider to get the cart items (List<CartItem>)
     final shopProvider = context.read<Shop>();
     final cart = shopProvider.cart;
 
-    // 2) Calculate total price
+    // 2) Calculate total price using each CartItem's product price
     double totalPrice = 0.0;
-    for (final product in cart) {
-      totalPrice += product.price;
+    for (final cartItem in cart) {
+      totalPrice += cartItem.product.price;
     }
 
     // 3) Get current user (if logged in), otherwise fallback to 'guest'
@@ -36,7 +35,7 @@ class _CartPageState extends State<CartPage> {
     try {
       await FirestoreService().createOrder(
         userId: userId,
-        cartItems: cart,
+        cartItems: cart, // Now a List<CartItem>
         totalPrice: totalPrice,
       );
 
@@ -99,7 +98,7 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Get access to cart
+    // Get access to cart (now a List<CartItem>)
     final cart = context.watch<Shop>().cart;
 
     return Scaffold(
@@ -148,10 +147,10 @@ class _CartPageState extends State<CartPage> {
                     : ListView.builder(
                         itemCount: cart.length,
                         itemBuilder: (context, index) {
-                          // Get individual product item
-                          final item = cart[index];
+                          // Get individual cart item (of type CartItem)
+                          final cartItem = cart[index];
                           // Return cart item tile
-                          return MyCartItemTile(item: item);
+                          return MyCartItemTile(item: cartItem);
                         },
                       ),
               ),

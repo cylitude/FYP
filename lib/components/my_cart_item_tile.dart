@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/product.dart';
-import '../models/shop.dart';
+import '../models/shop.dart'; // For CartItem, Shop
 
 class MyCartItemTile extends StatelessWidget {
-  final Product item;
+  final CartItem item; // instead of Product, we accept a CartItem
 
   const MyCartItemTile({
     super.key,
@@ -32,12 +31,11 @@ class MyCartItemTile extends StatelessWidget {
               ),
             ),
           ),
-
           // yes
           MaterialButton(
             onPressed: () {
               Navigator.pop(context);
-              // remove from cart
+              // remove from cart (pass the entire CartItem)
               context.read<Shop>().removeFromCart(item);
             },
             color: Theme.of(context).colorScheme.secondary,
@@ -56,6 +54,9 @@ class MyCartItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // For convenience, reference the product inside the cart item
+    final product = item.product;
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
@@ -70,7 +71,6 @@ class MyCartItemTile extends StatelessWidget {
               // product image
               Container(
                 decoration: BoxDecoration(
-                  //color: Theme.of(context).colorScheme.secondary,
                   borderRadius: BorderRadius.circular(12),
                   color: Theme.of(context).colorScheme.secondary,
                 ),
@@ -79,29 +79,35 @@ class MyCartItemTile extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.asset(
-                    item.imagePath,
+                    product.imagePath,
                     height: 64,
                   ),
                 ),
               ),
-
+              // product info
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // product name
                   Text(
-                    item.name,
+                    product.name,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
-
                   const SizedBox(height: 5),
-
-                  // product description
+                  // product price
                   Text(
-                    '\$${item.price.toStringAsFixed(2)}',
+                    '\$${product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  // chosen size
+                  Text(
+                    'Size: ${item.size}',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.inversePrimary,
                       fontSize: 12,
@@ -111,15 +117,24 @@ class MyCartItemTile extends StatelessWidget {
               ),
             ],
           ),
-
-          // remove from cart button
-          IconButton(
-            icon: Icon(
-              Icons.highlight_remove,
-              color: Theme.of(context).colorScheme.inversePrimary,
+          // Remove from cart button: smaller container and icon
+          Container(
+            width: 40,
+            height: 40,
+            // Optionally add a border or background if needed:
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(8),
             ),
-            onPressed: () => removeItemFromCart(context),
-          )
+            child: IconButton(
+              iconSize: 20,
+              onPressed: () => removeItemFromCart(context),
+              icon: const Icon(
+                Icons.highlight_remove,
+                color: Colors.black, // trolley icon now black
+              ),
+            ),
+          ),
         ],
       ),
     );

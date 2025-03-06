@@ -1,56 +1,64 @@
 import 'package:flutter/material.dart';
 import 'product.dart';
 
+/// Represents a single item in the cart: a Product + chosen size.
+class CartItem {
+  final Product product;
+  final String size;
+
+  CartItem({required this.product, required this.size});
+}
+
 class Shop extends ChangeNotifier {
   // products for sale
   final List<Product> _shop = [
     // product 1
     Product(
-      name: "White Shirt",
+      name: "Cotton White Shirt",
       price: 58.88,
       description: "Perfect for a casual date",
-      imagePath: 'assets/WhiteShirt.png',
+      imagePath: 'assets/FormalWhiteShirt.png',
     ),
     // product 2
     Product(
-      name: "Air Jordans 1",
-      price: 188.88,
-      description: "Fly high like Michael Jordan",
-      imagePath: 'assets/AirJordans1.png',
+      name: "Crochet Shirt",
+      price: 78.88,
+      description: "Perfect for the beach",
+      imagePath: 'assets/CrochetShirt.png',
     ),
     // product 3
     Product(
-      name: "Heizer G1",
-      price: 288.88,
-      description: "A modern and minimalistic pair of sunglasses.",
-      imagePath: 'assets/HeizerG1.png',
+      name: "Oxford Black Shirt",
+      price: 88.88,
+      description: "Perfect for date nights",
+      imagePath: 'assets/FormalBlackShirt.png',
     ),
     // product 4
     Product(
-      name: "Supreme Hoodie",
+      name: "Boxy Blue Shirt",
       price: 688.88,
-      description: "Made of 100% Cashmere",
-      imagePath: 'assets/BlackSupremeHoodie.png',
+      description: "Boxy, oversized fit",
+      imagePath: 'assets/BlueBoxyShirt.png',
     ),
   ];
 
-  // user cart
-  List<Product> _cart = [];
+  // The cart is now a list of CartItem
+  List<CartItem> _cart = [];
 
   // get product list
   List<Product> get shop => _shop;
 
   // get user cart
-  List<Product> get cart => _cart;
+  List<CartItem> get cart => _cart;
 
-  // add item to cart
-  void addToCart(Product item) {
-    _cart.add(item);
+  // Add item to cart, specifying the chosen size
+  void addToCart(Product product, String size) {
+    _cart.add(CartItem(product: product, size: size));
     notifyListeners();
   }
 
   // remove item from cart
-  void removeFromCart(Product item) {
+  void removeFromCart(CartItem item) {
     _cart.remove(item);
     notifyListeners();
   }
