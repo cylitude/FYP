@@ -6,8 +6,14 @@ import '../models/shop.dart';
 
 class MyProductTile extends StatefulWidget {
   final Product product;
+  /// Recommended size from the backend logic (e.g., "S", "M", "L", "XL")
+  final String recommendedSize;
 
-  const MyProductTile({super.key, required this.product});
+  const MyProductTile({
+    super.key,
+    required this.product,
+    required this.recommendedSize,
+  });
 
   @override
   State<MyProductTile> createState() => _MyProductTileState();
@@ -85,17 +91,19 @@ class _MyProductTileState extends State<MyProductTile> {
     );
   }
 
-  // Build a row of 4 selectable size boxes (S, M, L, XL) with toggle logic
+  // Build a row of 4 selectable size boxes (S, M, L, XL) with toggle logic.
   Widget _buildSizeSelectionRow() {
     final sizes = ['S', 'M', 'L', 'XL'];
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: sizes.map((size) {
         final isSelected = (_selectedSize == size);
+        // Check if this size matches the recommended size passed in.
+        final isRecommended = (size == widget.recommendedSize);
         return GestureDetector(
           onTap: () {
             setState(() {
-              // Toggle: unselect if tapped again; else select the new size
+              // Toggle: unselect if tapped again; otherwise, select the new size.
               _selectedSize = (_selectedSize == size) ? null : size;
             });
           },
@@ -106,7 +114,8 @@ class _MyProductTileState extends State<MyProductTile> {
               color: isSelected ? Colors.black : Colors.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Colors.grey,
+                // If this size is the recommended one, highlight the border in red.
+                color: isRecommended ? Colors.red : Colors.grey,
                 width: 1.5,
               ),
             ),
@@ -165,7 +174,6 @@ class _MyProductTileState extends State<MyProductTile> {
                 ),
               ),
               const SizedBox(height: 20),
-
               // Product name
               Text(
                 widget.product.name,
@@ -181,12 +189,10 @@ class _MyProductTileState extends State<MyProductTile> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Row of size boxes
+              // Row of size boxes (S, M, L, XL)
               _buildSizeSelectionRow(),
             ],
           ),
-
           // Bottom row: Price + Add-to-cart button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
