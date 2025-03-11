@@ -36,7 +36,7 @@ class Shop extends ChangeNotifier {
     // product 4
     Product(
       name: "Boxy Blue Shirt",
-      price: 688.88,
+      price: 68.88,
       description: "Boxy, oversized fit",
       imagePath: 'assets/BlueBoxyShirt.png',
     ),
