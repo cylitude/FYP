@@ -3,7 +3,8 @@
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
 6th Mar Upgrades
-1. Did some minor bug fixes and UI changes to make it more seamless, also ensuring Firestore Data Capture 
+1. Minor Overhaul on the UI and backend logic, so that it works out for it being a Shirt e-shop
+2. From here, next thing to incorporate would be the Recommender 
 
 3rd Mar Updates
 1. I created a chatbot page and integrated Dialogflow. However, the API does not call and reflect on the screen. Will need to see 
