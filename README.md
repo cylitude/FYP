@@ -2,6 +2,9 @@
 
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
+12th Mar Upgrades
+1. Added recommender_page which holds my backend logic for my auto-recommender
+
 6th Mar Upgrades
 1. Minor Overhaul on the UI and backend logic, so that it works out for it being a Shirt e-shop
 2. From here, next thing to incorporate would be the Recommender 
