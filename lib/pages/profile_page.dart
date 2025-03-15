@@ -153,8 +153,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       fillColor: Colors.transparent,
       filled: true,
-      // We'll set the labelStyle dynamically for each field,
-      // so we keep a default here if needed.
       labelStyle: const TextStyle(color: Colors.black),
     );
 
@@ -165,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'Profile',
           style: GoogleFonts.dmSerifDisplay(
             fontSize: 28,
-            fontWeight: FontWeight.w400, // less bold
+            fontWeight: FontWeight.w400,
           ),
         ),
         centerTitle: true,
@@ -181,7 +179,6 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Optional heading
                 Text(
                   'Update Your Profile',
                   style: GoogleFonts.dmSerifDisplay(
@@ -209,12 +206,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
                     labelText: 'First Name',
-                    // If empty, label = light blue, else black
                     labelStyle: TextStyle(
                       color: _getLabelColor(_firstNameController.text),
                     ),
                   ),
-                  // Rebuild so label color changes if user types or deletes
                   onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
@@ -323,6 +318,7 @@ class _ProfilePageState extends State<ProfilePage> {
             // Payment Details button
             ElevatedButton(
               onPressed: () {
+                // Navigate to PaymentDetailsPage
                 Navigator.pushNamed(context, '/paymentdetails_page');
               },
               style: ElevatedButton.styleFrom(

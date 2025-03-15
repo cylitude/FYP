@@ -9,21 +9,15 @@ class BodyMeasurementPage extends StatefulWidget {
   State<BodyMeasurementPage> createState() => _BodyMeasurementPageState();
 }
 
-class _BodyMeasurementPageState extends State<BodyMeasurementPage>
-    with SingleTickerProviderStateMixin {
-  // Tab controller for switching between Basic and Advanced
-  late TabController _tabController;
-
-  // TextEditingControllers for Basic Measurements
+class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
+  // TextEditingControllers for BASIC Measurements
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _shoeSizeController = TextEditingController();
 
-  // TextEditingControllers for Advanced Measurements (Optional)
+  // TextEditingControllers for ADVANCED Measurements (Optional)
   final TextEditingController _chestController = TextEditingController();
   final TextEditingController _shoulderController = TextEditingController();
   final TextEditingController _waistController = TextEditingController();
-  final TextEditingController _legLengthController = TextEditingController();
 
   // Gender dropdown
   String _selectedGender = 'Male';
@@ -34,7 +28,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _loadMeasurements();
   }
 
@@ -51,7 +44,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
       }
 
       final uid = user.uid;
-
       final docSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
@@ -61,11 +53,9 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
           _selectedGender = data['gender'] ?? 'Male';
           _heightController.text = data['height'] ?? '';
           _weightController.text = data['weight'] ?? '';
-          _shoeSizeController.text = data['shoeSize'] ?? '';
           _chestController.text = data['chest'] ?? '';
           _shoulderController.text = data['shoulder'] ?? '';
           _waistController.text = data['waist'] ?? '';
-          _legLengthController.text = data['legLength'] ?? '';
         });
       }
     } catch (e) {
@@ -77,14 +67,11 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
 
   @override
   void dispose() {
-    _tabController.dispose();
     _heightController.dispose();
     _weightController.dispose();
-    _shoeSizeController.dispose();
     _chestController.dispose();
     _shoulderController.dispose();
     _waistController.dispose();
-    _legLengthController.dispose();
     super.dispose();
   }
 
@@ -109,18 +96,16 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
       final gender = _selectedGender;
       final height = _heightController.text.trim();
       final weight = _weightController.text.trim();
-      final shoeSize = _shoeSizeController.text.trim();
 
-      // -- ADVANCED FIELDS (OPTIONAL) --
+      // ADVANCED FIELDS (OPTIONAL)
       final chest = _chestController.text.trim();
       final shoulder = _shoulderController.text.trim();
       final waist = _waistController.text.trim();
-      final legLength = _legLengthController.text.trim();
 
-      // 3. Basic validation: only check the required fields
-      if (height.isEmpty || weight.isEmpty || shoeSize.isEmpty) {
+      // 3. Basic validation: require height & weight
+      if (height.isEmpty || weight.isEmpty) {
         setState(() {
-          _errorMessage = 'Please fill in the required basic fields.';
+          _errorMessage = 'Please fill in the required fields (Height, Weight).';
         });
         return;
       }
@@ -128,17 +113,14 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
       // 4. Save to Firestore (users collection, doc = user.uid)
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'gender': gender,
-        'height': height,        // now in metres
-        'weight': weight,        // in kg
-        'shoeSize': shoeSize,    // EUR shoe size
-        // Advanced fields
+        'height': height,      // in cm
+        'weight': weight,      // in kg
         'chest': chest,
         'shoulder': shoulder,
         'waist': waist,
-        'legLength': legLength,
       }, SetOptions(merge: true));
 
-      // 5. If the widget is still mounted, navigate
+      // 5. Navigate on success
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/shop_page');
     } catch (e) {
@@ -177,163 +159,126 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
         elevation: 0,
         backgroundColor: Colors.grey[300],
         foregroundColor: Colors.black,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(48.0),
-          child: Container(
-            color: Colors.grey[300],
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.black,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.black,
-              tabs: const [
-                Tab(text: 'BASIC'),
-                Tab(text: 'ADVANCED'),
-              ],
-            ),
-          ),
-        ),
       ),
       body: SafeArea(
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            // BASIC Measurements Tab
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Gender Dropdown
-                  DropdownButtonFormField<String>(
-                    value: _selectedGender,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Gender',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_selectedGender),
-                      ),
-                    ),
-                    items: const [
-                      DropdownMenuItem(value: 'Male', child: Text('Male')),
-                      DropdownMenuItem(value: 'Female', child: Text('Female')),
-                      DropdownMenuItem(value: 'Other', child: Text('Other')),
-                    ],
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _selectedGender = value;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Height (metres)
-                  TextField(
-                    controller: _heightController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Height (metres)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_heightController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Weight (kg)
-                  TextField(
-                    controller: _weightController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Weight (kg)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_weightController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Shoe Size (EUR)
-                  TextField(
-                    controller: _shoeSizeController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Shoe Size (EUR)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_shoeSizeController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
-                  ),
-                ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // BASIC SECTION
+              const Text(
+                'BASIC',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
 
-            // ADVANCED Measurements Tab
-            SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  // Chest Circumference
-                  TextField(
-                    controller: _chestController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Chest Circumference (cm)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_chestController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
+              // Gender Dropdown
+              DropdownButtonFormField<String>(
+                value: _selectedGender,
+                decoration: baseDecoration.copyWith(
+                  labelText: 'Gender',
+                  labelStyle: TextStyle(
+                    color: _getLabelColor(_selectedGender),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Shoulder Width
-                  TextField(
-                    controller: _shoulderController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Shoulder Width (cm)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_shoulderController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Waist Circumference
-                  TextField(
-                    controller: _waistController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Waist Circumference (cm)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_waistController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Leg Length
-                  TextField(
-                    controller: _legLengthController,
-                    keyboardType: TextInputType.number,
-                    decoration: baseDecoration.copyWith(
-                      labelText: 'Leg Length (cm)',
-                      labelStyle: TextStyle(
-                        color: _getLabelColor(_legLengthController.text),
-                      ),
-                    ),
-                    onChanged: (value) => setState(() {}),
-                  ),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Male', child: Text('Male')),
+                  DropdownMenuItem(value: 'Female', child: Text('Female')),
+                  DropdownMenuItem(value: 'Other', child: Text('Other')),
                 ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _selectedGender = value;
+                    });
+                  }
+                },
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+
+              // Height (cm)
+              TextField(
+                controller: _heightController,
+                keyboardType: TextInputType.number,
+                decoration: baseDecoration.copyWith(
+                  labelText: 'Height (cm)',
+                  labelStyle: TextStyle(
+                    color: _getLabelColor(_heightController.text),
+                  ),
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+
+              // Weight (kg)
+              TextField(
+                controller: _weightController,
+                keyboardType: TextInputType.number,
+                decoration: baseDecoration.copyWith(
+                  labelText: 'Weight (kg)',
+                  labelStyle: TextStyle(
+                    color: _getLabelColor(_weightController.text),
+                  ),
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
+              const SizedBox(height: 32),
+
+              // ADVANCED SECTION
+              const Text(
+                'ADVANCED',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Chest Circumference
+              TextField(
+                controller: _chestController,
+                keyboardType: TextInputType.number,
+                decoration: baseDecoration.copyWith(
+                  labelText: 'Chest Circumference (cm)',
+                  labelStyle: TextStyle(
+                    color: _getLabelColor(_chestController.text),
+                  ),
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+
+              // Shoulder Width
+              TextField(
+                controller: _shoulderController,
+                keyboardType: TextInputType.number,
+                decoration: baseDecoration.copyWith(
+                  labelText: 'Shoulder Width (cm)',
+                  labelStyle: TextStyle(
+                    color: _getLabelColor(_shoulderController.text),
+                  ),
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
+              const SizedBox(height: 16),
+
+              // Waist Circumference
+              TextField(
+                controller: _waistController,
+                keyboardType: TextInputType.number,
+                decoration: baseDecoration.copyWith(
+                  labelText: 'Waist Circumference (cm)',
+                  labelStyle: TextStyle(
+                    color: _getLabelColor(_waistController.text),
+                  ),
+                ),
+                onChanged: (value) => setState(() {}),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(
@@ -368,7 +313,7 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage>
                 'SAVE AND CONTINUE',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16,
+                  fontSize: 16, // consistent with PaymentDetails button
                 ),
               ),
             ),
