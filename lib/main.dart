@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gemini/flutter_gemini.dart'; // <-- Import for Gemini.init
 
 // Models
 import 'models/shop.dart';
@@ -18,7 +19,7 @@ import 'pages/cart_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/chatbot_page.dart';
-import 'pages/analytics_page.dart';
+import 'pages/gemini_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/measurements_page.dart';
 import 'pages/paymentdetails_page.dart'; 
@@ -31,6 +32,9 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Initialize Gemini once here in main(), rather than inside gemini_page.dart
+  Gemini.init(apiKey: "AIzaSyBZWMVEtxlmjU9gOplzJKI3H-W-CP7NswQ");
 
   runApp(
     MultiProvider(
@@ -65,8 +69,8 @@ class MyApp extends StatelessWidget {
         '/settings_page': (context) => const SettingsPage(),
         '/profile_page': (context) => const ProfilePage(),
         '/chatbot_page': (context) => ChatbotPage(),
-        '/analytics_page': (context) => AnalyticsPage(),
         '/paymentdetails_page': (context) => const PaymentDetailsPage(),
+        '/gemini_page': (context) => const GeminiPage(),
       },
     );
   }

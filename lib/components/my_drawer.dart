@@ -64,11 +64,11 @@ class MyDrawer extends StatelessWidget {
               ),
               // Analytics tile
               MyListTile(
-                text: "A N A L Y T I C S",
-                icon: Icons.analytics,
+                text: "V A V A",
+                icon: Icons.assistant,
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/analytics_page');
+                  Navigator.pushNamed(context, '/gemini_page');
                 },
               ),
               // Settings tile
@@ -80,7 +80,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/settings_page');
                 },
               ),
-              // Profile tile (replaces "About")
+              // Profile tile 
               Padding(
                 padding: const EdgeInsets.only(bottom: 25.0),
                 child: MyListTile(

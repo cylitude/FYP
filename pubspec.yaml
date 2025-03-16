@@ -24,6 +24,7 @@ dependencies:
   firebase_core: ^3.12.0
   firebase_auth: ^5.5.0
   cloud_firestore: ^5.6.4
+  flutter_gemini: ^3.0.0
   
   # Dependencies for Dialogflow integration
   dialogflow_grpc: ^0.2.9

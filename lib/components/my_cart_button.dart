@@ -8,7 +8,7 @@ class MyCartButton extends StatelessWidget {
     return IconButton(
       iconSize: 36, 
       onPressed: () => Navigator.pushNamed(context, '/cart_page'),
-      icon: const Icon(Icons.shopping_basket), // Change to a basket icon
+      icon: const Icon(Icons.shopping_basket), 
     );
   }
 }
