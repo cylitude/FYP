@@ -2,11 +2,16 @@
 
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
+16th Mar Upgrades
+1. Added Vava, my Gemini Chatbot. Functionality-wise, it works very well!
+- However, one thing that I will need to sort will be the overall UX/UI, ensuring that everything looks seamless and good
+2. For next steps, To-Dos would be to continue with what I mentioned and said on 15th March
+
 15th Mar Upgrades
 1. Accounted for saving Payment Details, as well as cleaning up my Measurement Page
-- Subsequent thing that I will need to settle would be the CartOut page, as well as the parameters that go along with it, and the new features I want to implement
+- The subsequent thing that I will need to settle would be the CartOut page, as well as the parameters that go along with it, and the new features I want to implement
 - Tip to myself would be to follow the format for the Payment Details Page for Shipping and Billing Address Page
-- Group the parameters and save it as one Firestore entry, will be easier
+- Group the parameters and save them as one Firestore entry, will be easier
 
 12th Mar Upgrades
 1. Added recommender_page which holds my backend logic for my auto-recommender
