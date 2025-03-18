@@ -21,7 +21,8 @@ import 'pages/profile_page.dart';
 import 'pages/gemini_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/measurements_page.dart';
-import 'pages/paymentdetails_page.dart'; 
+import 'pages/paymentdetails_page.dart';
+import 'pages/pinterest_page.dart'; // <-- Import your Pinterest page
 
 // Theme
 import 'theme/theme_provider.dart';
@@ -69,6 +70,7 @@ class MyApp extends StatelessWidget {
         '/profile_page': (context) => const ProfilePage(),
         '/paymentdetails_page': (context) => const PaymentDetailsPage(),
         '/gemini_page': (context) => const GeminiPage(),
+        '/pinterest_page': (context) => const PinterestPage(), 
       },
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shimmer/shimmer.dart'; // <-- Import Shimmer
+import 'package:shimmer/shimmer.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; 
 import 'my_list_tile.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -71,7 +72,45 @@ class MyDrawer extends StatelessWidget {
                 ),
               ),
               
-              // 2) SHOP tile
+              // 2) PINTEREST tile (new button)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/pinterest_page');
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.red, Colors.pink],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      leading: const Icon(
+                        FontAwesomeIcons.pinterest, // Pinterest icon
+                        color: Colors.white,
+                      ),
+                      title: Shimmer.fromColors(
+                        baseColor: Colors.white,
+                        highlightColor: Colors.yellow,
+                        child: const Text(
+                          "PINTEREST",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              
+              // 3) SHOP tile
               MyListTile(
                 text: "S H O P",
                 icon: Icons.home,
@@ -81,7 +120,7 @@ class MyDrawer extends StatelessWidget {
                 },
               ),
 
-              // 3) CART tile
+              // 4) CART tile
               MyListTile(
                 text: "C A R T",
                 icon: Icons.shopping_cart,
@@ -91,7 +130,7 @@ class MyDrawer extends StatelessWidget {
                 },
               ),
 
-              // 4) ORDERS tile
+              // 5) ORDERS tile
               MyListTile(
                 text: "O R D E R S",
                 icon: Icons.receipt,
@@ -101,7 +140,7 @@ class MyDrawer extends StatelessWidget {
                 },
               ),
 
-              // 5) PROFILE tile
+              // 6) PROFILE tile
               MyListTile(
                 text: "P R O F I L E",
                 icon: Icons.person,
@@ -111,7 +150,7 @@ class MyDrawer extends StatelessWidget {
                 },
               ),
 
-              // 6) SETTINGS tile
+              // 7) SETTINGS tile
               MyListTile(
                 text: "S E T T I N G S",
                 icon: Icons.settings,
