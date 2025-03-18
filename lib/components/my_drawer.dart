@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart'; // <-- Import Shimmer
 import 'my_list_tile.dart';
 
 class MyDrawer extends StatelessWidget {
@@ -12,6 +13,7 @@ class MyDrawer extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Top section
           Column(
             children: [
               // Drawer header: logo
@@ -29,13 +31,57 @@ class MyDrawer extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 25),
-              // Shop tile
+              
+              // 1) VAVA tile (special style)
+              //    - Shimmer text + gradient background
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/gemini_page');
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.purple, Colors.blueAccent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.assistant,
+                        color: Colors.white,
+                      ),
+                      title: Shimmer.fromColors(
+                        baseColor: Colors.white,
+                        highlightColor: Colors.yellow,
+                        child: const Text(
+                          "V A V A",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              
+              // 2) SHOP tile
               MyListTile(
                 text: "S H O P",
                 icon: Icons.home,
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Add any additional navigation if desired
+                },
               ),
-              // Cart tile
+
+              // 3) CART tile
               MyListTile(
                 text: "C A R T",
                 icon: Icons.shopping_cart,
@@ -44,7 +90,8 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/cart_page');
                 },
               ),
-              // Orders tile
+
+              // 4) ORDERS tile
               MyListTile(
                 text: "O R D E R S",
                 icon: Icons.receipt,
@@ -53,25 +100,18 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/orders_page');
                 },
               ),
-              // Chatbot tile
+
+              // 5) PROFILE tile
               MyListTile(
-                text: "C H A T B O T",
-                icon: Icons.chat,
+                text: "P R O F I L E",
+                icon: Icons.person,
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.pushNamed(context, '/chatbot_page');
+                  Navigator.pushNamed(context, '/profile_page');
                 },
               ),
-              // Analytics tile
-              MyListTile(
-                text: "V A V A",
-                icon: Icons.assistant,
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/gemini_page');
-                },
-              ),
-              // Settings tile
+
+              // 6) SETTINGS tile
               MyListTile(
                 text: "S E T T I N G S",
                 icon: Icons.settings,
@@ -80,21 +120,10 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pushNamed(context, '/settings_page');
                 },
               ),
-              // Profile tile 
-              Padding(
-                padding: const EdgeInsets.only(bottom: 25.0),
-                child: MyListTile(
-                  text: "P R O F I L E",
-                  icon: Icons.person,
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/profile_page');
-                  },
-                ),
-              ),
             ],
           ),
-          // Exit tile
+
+          // Bottom section: LOGOUT tile
           Padding(
             padding: const EdgeInsets.only(bottom: 25.0),
             child: MyListTile(

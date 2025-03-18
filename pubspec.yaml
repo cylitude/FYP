@@ -29,6 +29,7 @@ dependencies:
   # Dependencies for Dialogflow integration
   dialogflow_grpc: ^0.2.9
   http: ^1.3.0
+  shimmer: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +57,3 @@ flutter:
     - assets/CrochetShirt.png
     - assets/FormalBlackShirt.png
     - assets/BlueBoxyShirt.png
-
-    # If you have more images, add them here.
-    # If you have subfolders (e.g., assets/pages/), add them similarly.

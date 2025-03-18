@@ -18,7 +18,6 @@ import 'pages/shop_page.dart';
 import 'pages/cart_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/profile_page.dart';
-import 'pages/chatbot_page.dart';
 import 'pages/gemini_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/measurements_page.dart';
@@ -68,7 +67,6 @@ class MyApp extends StatelessWidget {
         '/orders_page': (context) => const OrdersPage(),
         '/settings_page': (context) => const SettingsPage(),
         '/profile_page': (context) => const ProfilePage(),
-        '/chatbot_page': (context) => ChatbotPage(),
         '/paymentdetails_page': (context) => const PaymentDetailsPage(),
         '/gemini_page': (context) => const GeminiPage(),
       },
