@@ -10,19 +10,12 @@ class BodyMeasurementPage extends StatefulWidget {
 }
 
 class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
-  // TextEditingControllers for BASIC Measurements
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _weightController = TextEditingController();
-
-  // TextEditingControllers for ADVANCED Measurements (Optional)
   final TextEditingController _chestController = TextEditingController();
   final TextEditingController _shoulderController = TextEditingController();
   final TextEditingController _waistController = TextEditingController();
-
-  // Gender dropdown
   String _selectedGender = 'Male';
-
-  // Optional: Display errors if something goes wrong
   String _errorMessage = '';
 
   @override
@@ -31,8 +24,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
     _loadMeasurements();
   }
 
-  /// Loads the user's measurement data from Firestore and
-  /// populates the controllers + gender dropdown.
   Future<void> _loadMeasurements() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -42,7 +33,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
         });
         return;
       }
-
       final uid = user.uid;
       final docSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -75,14 +65,12 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
     super.dispose();
   }
 
-  /// Helper to determine label color: light blue if empty, black if filled
   Color _getLabelColor(String text) {
     return text.trim().isEmpty ? Colors.lightBlue : Colors.black;
   }
 
   Future<void> _saveAndContinue() async {
     try {
-      // 1. Get current user
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         setState(() {
@@ -91,18 +79,13 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
         return;
       }
       final uid = user.uid;
-
-      // 2. Gather all form data
       final gender = _selectedGender;
       final height = _heightController.text.trim();
       final weight = _weightController.text.trim();
-
-      // ADVANCED FIELDS (OPTIONAL)
       final chest = _chestController.text.trim();
       final shoulder = _shoulderController.text.trim();
       final waist = _waistController.text.trim();
 
-      // 3. Basic validation: require height & weight
       if (height.isEmpty || weight.isEmpty) {
         setState(() {
           _errorMessage = 'Please fill in the required fields (Height, Weight).';
@@ -110,21 +93,18 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
         return;
       }
 
-      // 4. Save to Firestore (users collection, doc = user.uid)
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'gender': gender,
-        'height': height,      // in cm
-        'weight': weight,      // in kg
+        'height': height,
+        'weight': weight,
         'chest': chest,
         'shoulder': shoulder,
         'waist': waist,
       }, SetOptions(merge: true));
 
-      // 5. Navigate on success
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/shop_page');
     } catch (e) {
-      // Catch any errors and display them
       setState(() {
         _errorMessage = 'An error occurred: $e';
       });
@@ -133,7 +113,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Base InputDecoration
     final baseDecoration = InputDecoration(
       border: const OutlineInputBorder(
         borderSide: BorderSide(color: Colors.grey, width: 1.0),
@@ -164,18 +143,31 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // BASIC SECTION
-              const Text(
-                'BASIC',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              // New top footnote
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Text(
+                  "Fill in your information to experience a flawless, personalized fit",
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              // Centered BASIC header
+              Center(
+                child: Text(
+                  'BASIC',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Gender Dropdown
               DropdownButtonFormField<String>(
                 value: _selectedGender,
                 decoration: baseDecoration.copyWith(
@@ -198,8 +190,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Height (cm)
               TextField(
                 controller: _heightController,
                 keyboardType: TextInputType.number,
@@ -212,8 +202,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 onChanged: (value) => setState(() {}),
               ),
               const SizedBox(height: 16),
-
-              // Weight (kg)
               TextField(
                 controller: _weightController,
                 keyboardType: TextInputType.number,
@@ -226,18 +214,17 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 onChanged: (value) => setState(() {}),
               ),
               const SizedBox(height: 32),
-
-              // ADVANCED SECTION
-              const Text(
-                'ADVANCED',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              // Centered ADVANCED header
+              Center(
+                child: Text(
+                  'ADVANCED',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Chest Circumference
               TextField(
                 controller: _chestController,
                 keyboardType: TextInputType.number,
@@ -250,8 +237,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 onChanged: (value) => setState(() {}),
               ),
               const SizedBox(height: 16),
-
-              // Shoulder Width
               TextField(
                 controller: _shoulderController,
                 keyboardType: TextInputType.number,
@@ -264,8 +249,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 onChanged: (value) => setState(() {}),
               ),
               const SizedBox(height: 16),
-
-              // Waist Circumference
               TextField(
                 controller: _waistController,
                 keyboardType: TextInputType.number,
@@ -277,6 +260,17 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 ),
                 onChanged: (value) => setState(() {}),
               ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  "Advanced fields are optional to fill in",
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),
@@ -287,7 +281,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Display error message if any
             if (_errorMessage.isNotEmpty) ...[
               Text(
                 _errorMessage,
@@ -305,7 +298,6 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                // Force the button to expand horizontally and be taller
                 minimumSize: const Size(double.infinity, 80),
                 padding: const EdgeInsets.symmetric(vertical: 30),
               ),
@@ -313,7 +305,7 @@ class _BodyMeasurementPageState extends State<BodyMeasurementPage> {
                 'SAVE AND CONTINUE',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 16, // consistent with PaymentDetails button
+                  fontSize: 16,
                 ),
               ),
             ),

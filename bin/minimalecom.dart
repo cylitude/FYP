@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:args/args.dart';
 
 const String version = '0.0.1';
@@ -24,8 +25,14 @@ ArgParser buildParser() {
 }
 
 void printUsage(ArgParser argParser) {
-  print('Usage: dart minimalecom.dart <flags> [arguments]');
-  print(argParser.usage);
+  developer.log(
+    'Usage: dart minimalecom.dart <flags> [arguments]',
+    name: 'minimalecom',
+  );
+  developer.log(
+    argParser.usage,
+    name: 'minimalecom',
+  );
 }
 
 void main(List<String> arguments) {
@@ -40,22 +47,30 @@ void main(List<String> arguments) {
       return;
     }
     if (results.wasParsed('version')) {
-      print('minimalecom version: $version');
+      developer.log(
+        'minimalecom version: $version',
+        name: 'minimalecom',
+      );
       return;
     }
     if (results.wasParsed('verbose')) {
       verbose = true;
     }
 
-    // Act on the arguments provided.
-    print('Positional arguments: ${results.rest}');
+    developer.log(
+      'Positional arguments: ${results.rest}',
+      name: 'minimalecom',
+    );
     if (verbose) {
-      print('[VERBOSE] All arguments: ${results.arguments}');
+      developer.log(
+        '[VERBOSE] All arguments: ${results.arguments}',
+        name: 'minimalecom',
+      );
     }
   } on FormatException catch (e) {
-    // Print usage information if an invalid argument was provided.
-    print(e.message);
-    print('');
+    // Log usage information if an invalid argument was provided.
+    developer.log(e.message, name: 'minimalecom');
+    developer.log('', name: 'minimalecom');
     printUsage(argParser);
   }
 }

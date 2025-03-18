@@ -3,16 +3,15 @@ import 'package:provider/provider.dart';
 import '../models/shop.dart'; // For CartItem, Shop
 
 class MyCartItemTile extends StatelessWidget {
-  final CartItem item; // instead of Product, we accept a CartItem
+  final CartItem item; // A CartItem that includes product, size, quantity
 
   const MyCartItemTile({
     super.key,
     required this.item,
   });
 
-  // remove this item from cart
+  /// Confirm removal of this item from cart
   void removeItemFromCart(BuildContext context) {
-    // show dialog to confirm removal
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -31,11 +30,10 @@ class MyCartItemTile extends StatelessWidget {
               ),
             ),
           ),
-          // yes
+          // yes => remove
           MaterialButton(
             onPressed: () {
               Navigator.pop(context);
-              // remove from cart (pass the entire CartItem)
               context.read<Shop>().removeFromCart(item);
             },
             color: Theme.of(context).colorScheme.secondary,
@@ -56,6 +54,7 @@ class MyCartItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // For convenience, reference the product inside the cart item
     final product = item.product;
+    final shop = context.read<Shop>();
 
     return Container(
       decoration: BoxDecoration(
@@ -63,76 +62,89 @@ class MyCartItemTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       margin: const EdgeInsets.only(left: 25, right: 25, bottom: 10),
+      padding: const EdgeInsets.all(8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              // product image
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                padding: const EdgeInsets.all(4),
-                margin: const EdgeInsets.all(16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    product.imagePath,
-                    height: 64,
-                  ),
-                ),
+          // Product image
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            padding: const EdgeInsets.all(4),
+            margin: const EdgeInsets.all(8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                product.imagePath,
+                height: 64,
               ),
-              // product info
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // product name
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+            ),
+          ),
+          // Product info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Product name
+                Text(
+                  product.name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                  const SizedBox(height: 5),
-                  // product price
-                  Text(
-                    '\$${product.price.toStringAsFixed(2)}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      fontSize: 12,
-                    ),
+                ),
+                const SizedBox(height: 5),
+                // Product price
+                Text(
+                  '\$${product.price.toStringAsFixed(2)}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                    fontSize: 12,
                   ),
-                  // chosen size
-                  Text(
-                    'Size: ${item.size}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      fontSize: 12,
-                    ),
+                ),
+                // Chosen size
+                Text(
+                  'Size: ${item.size}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                    fontSize: 12,
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          // Quantity controls
+          Column(
+            children: [
+              // Plus (+) button
+              IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () {
+                  shop.increaseQuantity(item);
+                },
+              ),
+              // Quantity display
+              Text(
+                '${item.quantity}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              // Minus (–) button
+              IconButton(
+                icon: const Icon(Icons.remove),
+                onPressed: () {
+                  shop.decreaseQuantity(item);
+                },
               ),
             ],
           ),
-          // Remove from cart button: smaller container and icon
-          Container(
-            width: 40,
-            height: 40,
-            // Optionally add a border or background if needed:
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: IconButton(
-              iconSize: 20,
-              onPressed: () => removeItemFromCart(context),
-              icon: const Icon(
-                Icons.highlight_remove,
-                color: Colors.black, // trolley icon now black
-              ),
+          // Remove item from cart (X)
+          IconButton(
+            iconSize: 20,
+            onPressed: () => removeItemFromCart(context),
+            icon: const Icon(
+              Icons.highlight_remove,
+              color: Colors.black,
             ),
           ),
         ],

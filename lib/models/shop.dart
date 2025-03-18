@@ -1,39 +1,40 @@
 import 'package:flutter/material.dart';
 import 'product.dart';
 
-/// Represents a single item in the cart: a Product + chosen size.
+/// Represents a single item in the cart: a Product + chosen size + quantity
 class CartItem {
   final Product product;
   final String size;
+  int quantity;
 
-  CartItem({required this.product, required this.size});
+  CartItem({
+    required this.product,
+    required this.size,
+    this.quantity = 1,
+  });
 }
 
 class Shop extends ChangeNotifier {
-  // products for sale
+  // Products for sale
   final List<Product> _shop = [
-    // product 1
     Product(
       name: "Cotton White Shirt",
       price: 58.88,
       description: "Perfect for a casual date",
       imagePath: 'assets/FormalWhiteShirt.png',
     ),
-    // product 2
     Product(
       name: "Crochet Shirt",
       price: 78.88,
       description: "Perfect for the beach",
       imagePath: 'assets/CrochetShirt.png',
     ),
-    // product 3
     Product(
       name: "Oxford Black Shirt",
       price: 88.88,
       description: "Perfect for date nights",
       imagePath: 'assets/FormalBlackShirt.png',
     ),
-    // product 4
     Product(
       name: "Boxy Blue Shirt",
       price: 68.88,
@@ -43,29 +44,56 @@ class Shop extends ChangeNotifier {
   ];
 
   // The cart is now a list of CartItem
-  List<CartItem> _cart = [];
+  final List<CartItem> _cart = [];
 
-  // get product list
+  // Get product list
   List<Product> get shop => _shop;
 
-  // get user cart
+  // Get user cart
   List<CartItem> get cart => _cart;
 
-  // Add item to cart, specifying the chosen size
+  /// Add item to cart, specifying the chosen size.
+  /// If the same product & size is already in the cart, just increment quantity.
   void addToCart(Product product, String size) {
-    _cart.add(CartItem(product: product, size: size));
+    final existingIndex = _cart.indexWhere((cartItem) =>
+        cartItem.product.name == product.name && cartItem.size == size);
+
+    if (existingIndex != -1) {
+      // Already in cart => increment the quantity
+      _cart[existingIndex].quantity++;
+    } else {
+      // Not in cart => add a new CartItem
+      _cart.add(CartItem(product: product, size: size, quantity: 1));
+    }
     notifyListeners();
   }
 
-  // remove item from cart
+  /// Remove entire item from cart
   void removeFromCart(CartItem item) {
     _cart.remove(item);
     notifyListeners();
   }
 
-  // clear the entire cart
+  /// Clear the entire cart
   void clearCart() {
     _cart.clear();
+    notifyListeners();
+  }
+
+  /// Increase quantity of a given CartItem
+  void increaseQuantity(CartItem item) {
+    item.quantity++;
+    notifyListeners();
+  }
+
+  /// Decrease quantity of a given CartItem.
+  /// If quantity reaches 0, remove it from the cart.
+  void decreaseQuantity(CartItem item) {
+    if (item.quantity > 1) {
+      item.quantity--;
+    } else {
+      _cart.remove(item);
+    }
     notifyListeners();
   }
 }

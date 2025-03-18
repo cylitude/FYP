@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../components/my_button.dart';
 import '../components/my_cart_item_tile.dart';
 import '../models/shop.dart';
 import '../services/firestore_template.dart';
+import '../services/promocode.dart'; 
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -15,45 +18,169 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  // Pay button was pressed
+  // For promo code input
+  final TextEditingController _promoCodeController = TextEditingController();
+
+  // Holds the discount percentage from a valid promo code
+  int _discountPercentage = 0;
+
+  // Saved Payment Methods & Addresses
+  List<Map<String, dynamic>> _savedCards = [];
+  List<Map<String, dynamic>> _savedAddresses = [];
+
+  // Selected Payment Method & Address
+  String? _selectedCardId;     // e.g., Firestore doc ID or last4 reference
+  String? _selectedAddressId;  // e.g., Firestore doc ID
+
+  // For showing errors (if any)
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCards();
+    _loadSavedAddresses();
+  }
+
+  /// Loads all saved cards from Firestore
+  Future<void> _loadSavedCards() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return; // not logged in
+      final uid = user.uid;
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('paymentMethods')
+          .get();
+
+      setState(() {
+        _savedCards = snapshot.docs.map((doc) {
+          final data = doc.data();
+          // You can store the doc ID or partial info (e.g., last4) as an identifier
+          return {
+            'id': doc.id,
+            'cardNumber': data['cardNumber'] ?? '',
+            'expiryDate': data['expiryDate'] ?? '',
+            'cvc': data['cvc'] ?? '',
+          };
+        }).toList();
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading cards: $e';
+      });
+    }
+  }
+
+  /// Loads all saved addresses from Firestore
+  Future<void> _loadSavedAddresses() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return; // not logged in
+      final uid = user.uid;
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('Shipping and Billing Address')
+          .get();
+
+      setState(() {
+        _savedAddresses = snapshot.docs.map((doc) {
+          final data = doc.data();
+          return {
+            'id': doc.id,
+            'firstName': data['firstName'] ?? '',
+            'lastName': data['lastName'] ?? '',
+            'shippingLine1': data['shippingLine1'] ?? '',
+            'billingLine1': data['billingLine1'] ?? '',
+          };
+        }).toList();
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading addresses: $e';
+      });
+    }
+  }
+
+  /// Applies a promo code by checking Firestore (via PromoCodeService)
+  Future<void> _applyPromoCode() async {
+    final code = _promoCodeController.text.trim();
+    if (code.isEmpty) {
+      setState(() {
+        _discountPercentage = 0;
+      });
+      return;
+    }
+
+    final promoService = PromoCodeService();
+    final promo = await promoService.getPromoCode(code);
+    if (promo != null) {
+      // Valid code
+      setState(() {
+        _discountPercentage = promo.discountPercentage;
+        _errorMessage = '';
+      });
+    } else {
+      // Invalid code
+      setState(() {
+        _discountPercentage = 0;
+        _errorMessage = 'Invalid promo code: $code';
+      });
+    }
+  }
+
+  /// Calculates the total price (price * quantity) of the cart items
+  double _calculateSubtotal(List<CartItem> cart) {
+    double total = 0.0;
+    for (final cartItem in cart) {
+      total += cartItem.product.price * cartItem.quantity;
+    }
+    return total;
+  }
+
+  /// Pay button pressed
   Future<void> payNow() async {
-    // 1) Access the Shop provider to get the cart items (List<CartItem>)
     final shopProvider = context.read<Shop>();
     final cart = shopProvider.cart;
 
-    // 2) Calculate total price using each CartItem's product price
-    double totalPrice = 0.0;
-    for (final cartItem in cart) {
-      totalPrice += cartItem.product.price;
-    }
-
-    // 3) Get current user (if logged in), otherwise fallback to 'guest'
     final user = FirebaseAuth.instance.currentUser;
     final userId = user?.uid ?? 'guest';
 
-    // 4) Try to create an order in Firestore
+    // Calculate the base subtotal
+    final subtotal = _calculateSubtotal(cart);
+
+    // Convert percentage discount to decimal
+    final discount = subtotal * (_discountPercentage / 100.0);
+    final finalTotal = subtotal - discount;
+
+    // Attempt to create an order in Firestore
     try {
       await FirestoreService().createOrder(
         userId: userId,
-        cartItems: cart, // Now a List<CartItem>
-        totalPrice: totalPrice,
+        cartItems: cart,
+        totalPrice: finalTotal,
       );
 
-      // 5) After the async call, check if we're still mounted before using context
       if (!mounted) return;
 
-      // On success, show a success dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.surface,
           title: const Text('Order Placed'),
-          content: const Text('Your order has been successfully created!'),
+          content: Text(
+            'Your order has been successfully created!\n'
+            'Payment Method: ${_selectedCardId ?? "None selected"}\n'
+            'Shipping Address: ${_selectedAddressId ?? "None selected"}',
+          ),
           actions: [
             MaterialButton(
               onPressed: () {
-                Navigator.pop(context); // close dialog
-                // Clear the cart using the clearCart() method
+                Navigator.pop(context);
                 shopProvider.clearCart();
               },
               color: Theme.of(context).colorScheme.secondary,
@@ -69,9 +196,7 @@ class _CartPageState extends State<CartPage> {
         ),
       );
     } catch (e) {
-      // 6) If there's an error, also check if we're still mounted
       if (!mounted) return;
-
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -98,8 +223,10 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Get access to cart (now a List<CartItem>)
     final cart = context.watch<Shop>().cart;
+    final subtotal = _calculateSubtotal(cart);
+    final discountAmount = subtotal * (_discountPercentage / 100.0);
+    final finalTotal = subtotal - discountAmount;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -133,6 +260,113 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
               ),
+
+              // If there's an error (e.g., invalid promo code)
+              if (_errorMessage.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Text(
+                    _errorMessage,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+
+              // PROMO CODE INPUT
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _promoCodeController,
+                        decoration: InputDecoration(
+                          labelText: 'Promo Code',
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () {
+                              _promoCodeController.clear();
+                              setState(() {
+                                _discountPercentage = 0;
+                                _errorMessage = '';
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _applyPromoCode,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Apply',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // SELECT PAYMENT METHOD (Dropdown)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(25, 16, 25, 0),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedCardId,
+                  decoration: const InputDecoration(
+                    labelText: 'Payment Method',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _savedCards.map((card) {
+                    final cardNumber = card['cardNumber'] as String;
+                    final last4 = cardNumber.length >= 4
+                        ? cardNumber.substring(cardNumber.length - 4)
+                        : cardNumber;
+                    return DropdownMenuItem(
+                      value: card['id'] as String,
+                      child: Text('Card ending in ****$last4'),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCardId = value;
+                    });
+                  },
+                ),
+              ),
+
+              // SELECT SHIPPING ADDRESS (Dropdown)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(25, 16, 25, 0),
+                child: DropdownButtonFormField<String>(
+                  value: _selectedAddressId,
+                  decoration: const InputDecoration(
+                    labelText: 'Shipping Address',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _savedAddresses.map((address) {
+                    final firstName = address['firstName'] as String;
+                    final lastName = address['lastName'] as String;
+                    final shipping = address['shippingLine1'] as String;
+                    final display = '$firstName $lastName, $shipping';
+                    return DropdownMenuItem(
+                      value: address['id'] as String,
+                      child: Text(display),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedAddressId = value;
+                    });
+                  },
+                ),
+              ),
+
               // Cart list
               Expanded(
                 child: cart.isEmpty
@@ -147,20 +381,45 @@ class _CartPageState extends State<CartPage> {
                     : ListView.builder(
                         itemCount: cart.length,
                         itemBuilder: (context, index) {
-                          // Get individual cart item (of type CartItem)
                           final cartItem = cart[index];
-                          // Return cart item tile
                           return MyCartItemTile(item: cartItem);
                         },
                       ),
               ),
+
+              // GREY BOX: Summaries (Subtotal, discount, final total)
+              if (cart.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 25),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
+                      Text('Savings from Promo Code: -\$${discountAmount.toStringAsFixed(2)}'),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Total: \$${finalTotal.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
               // Pay button
               Padding(
-                padding: const EdgeInsets.all(50.0),
+                padding: const EdgeInsets.all(25.0),
                 child: Row(
                   children: [
                     Expanded(
-                      // Only show pay button if there are items in cart
                       child: cart.isEmpty
                           ? const SizedBox()
                           : MyButton(

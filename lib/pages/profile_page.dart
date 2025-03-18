@@ -15,22 +15,23 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _shippingLine1Controller = TextEditingController();
-  final TextEditingController _shippingLine2Controller = TextEditingController();
   final TextEditingController _billingLine1Controller = TextEditingController();
-  final TextEditingController _billingLine2Controller = TextEditingController();
 
   // Optional: Display errors if something goes wrong
   String _errorMessage = '';
 
+  // List to hold saved addresses
+  List<Map<String, dynamic>> _savedAddresses = [];
+
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    _loadProfileData();
+    _loadAddresses();
   }
 
-  /// Fetches the user's existing profile data from Firestore and
-  /// sets the text fields accordingly.
-  Future<void> _loadUserData() async {
+  /// Loads the main profile data (first and last name)
+  Future<void> _loadProfileData() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
@@ -39,9 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
         return;
       }
-
       final uid = user.uid;
-
       final docSnapshot =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
@@ -50,10 +49,6 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           _firstNameController.text = data['firstName'] ?? '';
           _lastNameController.text = data['lastName'] ?? '';
-          _shippingLine1Controller.text = data['shippingLine1'] ?? '';
-          _shippingLine2Controller.text = data['shippingLine2'] ?? '';
-          _billingLine1Controller.text = data['billingLine1'] ?? '';
-          _billingLine2Controller.text = data['billingLine2'] ?? '';
         });
       }
     } catch (e) {
@@ -63,27 +58,46 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  /// Loads all saved addresses from the subcollection "Shipping and Billing Address"
+  Future<void> _loadAddresses() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final uid = user.uid;
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('Shipping and Billing Address')
+          .get();
+      setState(() {
+        _savedAddresses =
+            querySnapshot.docs.map((doc) => doc.data()).toList();
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error loading addresses: $e';
+      });
+    }
+  }
+
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _shippingLine1Controller.dispose();
-    _shippingLine2Controller.dispose();
     _billingLine1Controller.dispose();
-    _billingLine2Controller.dispose();
     super.dispose();
   }
 
-  // Helper method to get label color:
-  // If the field is empty, label is light blue; if not, label is black.
+  // Helper method to get label color: light blue if field is empty, black otherwise.
   Color _getLabelColor(String text) {
     return text.trim().isEmpty ? Colors.lightBlue : Colors.black;
   }
 
-  // Save data to Firestore
+  /// Saves the main profile data (first and last name) into the "users" document.
+  /// (Addresses are saved separately using the "Save Address" button.)
   Future<void> _saveAndContinue() async {
     try {
-      // 1. Get the currently logged-in user
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         setState(() {
@@ -93,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       final uid = user.uid;
 
-      // 2. Basic validation (First & Last Name)
+      // Basic validation for first and last name
       if (_firstNameController.text.trim().isEmpty ||
           _lastNameController.text.trim().isEmpty) {
         setState(() {
@@ -102,40 +116,155 @@ class _ProfilePageState extends State<ProfilePage> {
         return;
       }
 
-      // 3. Gather form data
       final firstName = _firstNameController.text.trim();
       final lastName = _lastNameController.text.trim();
-      final shippingLine1 = _shippingLine1Controller.text.trim();
-      final shippingLine2 = _shippingLine2Controller.text.trim();
-      final billingLine1 = _billingLine1Controller.text.trim();
-      final billingLine2 = _billingLine2Controller.text.trim();
 
-      // 4. Save to Firestore (under "users" collection, doc = uid)
+      // Save to the main "users" document
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'firstName': firstName,
         'lastName': lastName,
-        'shippingLine1': shippingLine1,
-        'shippingLine2': shippingLine2,
-        'billingLine1': billingLine1,
-        'billingLine2': billingLine2,
       }, SetOptions(merge: true));
 
-      // 5. Clear any error message
       setState(() {
         _errorMessage = '';
       });
 
-      // 6. Check if widget is still mounted before using context
       if (!mounted) return;
-
-      // 7. Navigate back to the previous page
       Navigator.pop(context);
-
     } catch (e) {
       setState(() {
         _errorMessage = 'An error occurred: $e';
       });
     }
+  }
+
+  /// Saves a new shipping and billing address into a subcollection.
+  Future<void> _saveAddress() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() {
+          _errorMessage = 'No logged-in user found. Please sign in first.';
+        });
+        return;
+      }
+      final uid = user.uid;
+      final firstName = _firstNameController.text.trim();
+      final lastName = _lastNameController.text.trim();
+      final shippingLine1 = _shippingLine1Controller.text.trim();
+      final billingLine1 = _billingLine1Controller.text.trim();
+
+      // Basic validation: require all these fields for saving an address
+      if (firstName.isEmpty ||
+          lastName.isEmpty ||
+          shippingLine1.isEmpty ||
+          billingLine1.isEmpty) {
+        setState(() {
+          _errorMessage =
+              'Please fill in First Name, Last Name, Shipping Address Line 1, and Billing Address Line 1.';
+        });
+        return;
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .collection('Shipping and Billing Address')
+          .add({
+        'firstName': firstName,
+        'lastName': lastName,
+        'shippingLine1': shippingLine1,
+        'billingLine1': billingLine1,
+      });
+
+      // Clear the address fields after saving
+      _shippingLine1Controller.clear();
+      _billingLine1Controller.clear();
+      setState(() {
+        _errorMessage = '';
+      });
+      _loadAddresses();
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error saving address: $e';
+      });
+    }
+  }
+
+  /// Builds a widget displaying the list of saved addresses.
+  Widget _buildSavedAddresses() {
+    if (_savedAddresses.isEmpty) {
+      return const Text('No saved addresses yet.');
+    }
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _savedAddresses.length,
+      itemBuilder: (context, index) {
+        final address = _savedAddresses[index];
+        final fullName =
+            '${address['firstName'] ?? ''} ${address['lastName'] ?? ''}';
+        final shipping = address['shippingLine1'] ?? '';
+        final billing = address['billingLine1'] ?? '';
+        return GestureDetector(
+          onTap: () {
+            // Show full address details in a dialog
+            showDialog(
+              context: context,
+              builder: (_) {
+                return AlertDialog(
+                  title: const Text('Address Details'),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Name: $fullName'),
+                      const SizedBox(height: 8),
+                      const Text('Shipping Address:'),
+                      Text(shipping),
+                      const SizedBox(height: 8),
+                      const Text('Billing Address:'),
+                      Text(billing),
+                    ],
+                  ),
+                  actions: [
+                    ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text('CLOSE',
+                          style: TextStyle(color: Colors.white)),
+                    )
+                  ],
+                );
+              },
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 8.0),
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text('Shipping: $shipping'),
+                Text('Billing: $billing'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -187,8 +316,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Error message if any
+                // Display error message if any
                 if (_errorMessage.isNotEmpty) ...[
                   Text(
                     _errorMessage,
@@ -199,7 +327,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 10),
                 ],
-
                 // First Name
                 TextField(
                   controller: _firstNameController,
@@ -213,7 +340,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
-
                 // Last Name
                 TextField(
                   controller: _lastNameController,
@@ -227,13 +353,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
-
                 // Shipping Address Line 1
                 TextField(
                   controller: _shippingLine1Controller,
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
-                    labelText: 'Shipping Address Line 1',
+                    labelText: 'Shipping Address Line',
                     labelStyle: TextStyle(
                       color: _getLabelColor(_shippingLine1Controller.text),
                     ),
@@ -241,27 +366,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
-
-                // Shipping Address Line 2
-                TextField(
-                  controller: _shippingLine2Controller,
-                  cursorColor: Colors.black,
-                  decoration: baseDecoration.copyWith(
-                    labelText: 'Shipping Address Line 2',
-                    labelStyle: TextStyle(
-                      color: _getLabelColor(_shippingLine2Controller.text),
-                    ),
-                  ),
-                  onChanged: (value) => setState(() {}),
-                ),
-                const SizedBox(height: 16),
-
                 // Billing Address Line 1
                 TextField(
                   controller: _billingLine1Controller,
                   cursorColor: Colors.black,
                   decoration: baseDecoration.copyWith(
-                    labelText: 'Billing Address Line 1',
+                    labelText: 'Billing Address Line',
                     labelStyle: TextStyle(
                       color: _getLabelColor(_billingLine1Controller.text),
                     ),
@@ -269,27 +379,38 @@ class _ProfilePageState extends State<ProfilePage> {
                   onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
-
-                // Billing Address Line 2
-                TextField(
-                  controller: _billingLine2Controller,
-                  cursorColor: Colors.black,
-                  decoration: baseDecoration.copyWith(
-                    labelText: 'Billing Address Line 2',
-                    labelStyle: TextStyle(
-                      color: _getLabelColor(_billingLine2Controller.text),
+                // "Save Address" button for adding a new address
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _saveAddress,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text(
+                      'SAVE ADDRESS',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),
-                  onChanged: (value) => setState(() {}),
                 ),
                 const SizedBox(height: 16),
+                // Display list of saved addresses
+                const Text(
+                  'Saved Addresses:',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                _buildSavedAddresses(),
               ],
             ),
           ),
         ),
       ),
-
-      // Bottom area with 3 buttons
+      // Bottom area with 3 buttons (unchanged)
       bottomNavigationBar: Container(
         color: Colors.grey[300],
         padding: const EdgeInsets.all(16),
@@ -314,11 +435,9 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 16),
-
             // Payment Details button
             ElevatedButton(
               onPressed: () {
-                // Navigate to PaymentDetailsPage
                 Navigator.pushNamed(context, '/paymentdetails_page');
               },
               style: ElevatedButton.styleFrom(
@@ -334,7 +453,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             const SizedBox(height: 16),
-
             // Save and Exit button
             ElevatedButton(
               onPressed: _saveAndContinue,

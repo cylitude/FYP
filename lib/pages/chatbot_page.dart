@@ -14,10 +14,10 @@ class ChatbotPage extends StatefulWidget {
   const ChatbotPage({super.key});
 
   @override
-  _ChatbotPageState createState() => _ChatbotPageState();
+  ChatbotPageState createState() => ChatbotPageState();
 }
 
-class _ChatbotPageState extends State<ChatbotPage> {
+class ChatbotPageState extends State<ChatbotPage> {
   final DialogflowService _dialogflowService = DialogflowService();
   final TextEditingController _controller = TextEditingController();
   final List<ChatMessage> _messages = [];
