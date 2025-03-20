@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gemini/flutter_gemini.dart'; // <-- Import for Gemini.init
+import 'package:flutter_gemini/flutter_gemini.dart'; 
 
 // Models
 import 'models/shop.dart';
@@ -32,7 +32,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialize Gemini once here in main(), rather than inside gemini_page.dart
+  // Initialize Gemini here
   Gemini.init(apiKey: "AIzaSyBZWMVEtxlmjU9gOplzJKI3H-W-CP7NswQ");
 
   runApp(
