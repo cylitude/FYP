@@ -2,6 +2,10 @@
 
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
+19th Mar Upgrades
+1. Did up the CartOut page by adding a few more features
+2. Moving forward, the most important thing that I will need to do will be to settle my UX/UI experience and making it more seamless 
+
 16th Mar Upgrades
 1. Added Vava, my Gemini Chatbot. Functionality-wise, it works very well!
 - However, one thing that I will need to sort will be the overall UX/UI, ensuring that everything looks seamless and good
