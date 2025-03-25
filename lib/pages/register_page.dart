@@ -63,7 +63,7 @@ class _RegisterPageState extends State<RegisterPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 50),
-              const Icon(Icons.lock, size: 100),
+              const Icon(Icons.cases_sharp, size: 100),
               const SizedBox(height: 50),
               Text(
                 "Create a new account",
@@ -74,16 +74,23 @@ class _RegisterPageState extends State<RegisterPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 25),
+              
               MyTextField(
                 controller: emailController,
                 hintText: 'Email',
                 obscureText: false,
               ),
+              
+              const SizedBox(height: 15),
+             
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
                 obscureText: true,
               ),
+              
+              const SizedBox(height: 15),
+              
               MyTextField(
                 controller: confirmPasswordController,
                 hintText: 'Confirm Password',

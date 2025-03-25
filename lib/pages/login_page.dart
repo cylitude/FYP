@@ -57,7 +57,8 @@ class _LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: 50),
-              const Icon(Icons.lock, size: 100),
+              
+              const Icon(Icons.cases_sharp, size: 100),
               const SizedBox(height: 50),
               Text(
                 "Welcome back, you've been missed!",
@@ -68,11 +69,15 @@ class _LoginPageState extends State<LoginPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 25),
+              // Email TextField
               MyTextField(
                 controller: emailController,
                 hintText: 'Email',
                 obscureText: false,
               ),
+              
+              const SizedBox(height: 15),
+              // Password TextField
               MyTextField(
                 controller: passwordController,
                 hintText: 'Password',
@@ -96,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 10),
               ],
-              // Use signUserIn without passing context
+              // Sign in button
               MySignin(onTap: signUserIn),
               const SizedBox(height: 50),
               Row(
