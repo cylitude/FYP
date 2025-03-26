@@ -30,12 +30,11 @@ dependencies:
   dialogflow_grpc: ^0.2.9
   http: ^1.3.0
   shimmer: ^2.0.0
+
   
-  # Pinterest OAuth via flutter_web_auth for mobile
-  ##flutter_web_auth: ^0.5.0
-  
-  # Font Awesome package for Pinterest logo icon
   font_awesome_flutter: ^10.1.0
+
+  getwidget: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -46,10 +45,8 @@ flutter:
   uses-material-design: true
 
   assets:
-    # If your JSON file is in the root, reference it without 'assets/'
     - assets/key/virtualfashionassistant-3fcb8-b548e77dd713.json
 
-    # List each image explicitly if you prefer:
     - assets/AirJordans1.png
     - assets/BlackSupremeHoodie.png
     - assets/HeizerG1.png
@@ -63,3 +60,9 @@ flutter:
     - assets/CrochetShirt.png
     - assets/FormalBlackShirt.png
     - assets/BlueBoxyShirt.png
+    - assets/OldMoney1.png
+    - assets/OldMoney2.png
+    - assets/OldMoney3.png
+    - assets/OldMoney4.png
+    - assets/OldMoney5.png
+    - assets/OldMoney6.png

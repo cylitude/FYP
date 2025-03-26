@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart'; 
 import 'my_list_tile.dart';
 
@@ -33,8 +33,7 @@ class MyDrawer extends StatelessWidget {
               ),
               const SizedBox(height: 25),
               
-              // 1) VAVA tile (special style)
-              //    - Shimmer text + gradient background
+              // 1) VAVA tile
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
                 child: GestureDetector(
@@ -51,20 +50,17 @@ class MyDrawer extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: ListTile(
-                      leading: const Icon(
+                    child: const ListTile(
+                      leading: Icon(
                         Icons.assistant,
                         color: Colors.white,
                       ),
-                      title: Shimmer.fromColors(
-                        baseColor: Colors.white,
-                        highlightColor: Colors.yellow,
-                        child: const Text(
-                          "V A V A",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                      title: Text(
+                        "V A V A",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -72,18 +68,23 @@ class MyDrawer extends StatelessWidget {
                 ),
               ),
               
-              // 2) PINTEREST tile (new button)
+              // 2) MOODBOARD tile 
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 25.0),
                 child: GestureDetector(
                   onTap: () {
+                    // Close the drawer first
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/pinterest_page');
+                    // Navigate to the Moodboard page
+                    Navigator.pushNamed(context, '/moodboard_page');
                   },
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Colors.red, Colors.pink],
+                        colors: [
+                          Color(0xFFD291BC),
+                          Color(0xFFFEC8D8),
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -91,17 +92,17 @@ class MyDrawer extends StatelessWidget {
                     ),
                     child: ListTile(
                       leading: const Icon(
-                        FontAwesomeIcons.pinterest, // Pinterest icon
+                        FontAwesomeIcons.brush,
                         color: Colors.white,
                       ),
-                      title: Shimmer.fromColors(
-                        baseColor: Colors.white,
-                        highlightColor: Colors.yellow,
-                        child: const Text(
-                          "PINTEREST",
-                          style: TextStyle(
+                      title: Text(
+                        "MOODBOARD",
+                        style: GoogleFonts.dancingScript(
+                          textStyle: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 2.0,
                           ),
                         ),
                       ),
@@ -116,7 +117,6 @@ class MyDrawer extends StatelessWidget {
                 icon: Icons.home,
                 onTap: () {
                   Navigator.pop(context);
-                  // Add any additional navigation if desired
                 },
               ),
 

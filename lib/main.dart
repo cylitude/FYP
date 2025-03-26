@@ -23,6 +23,9 @@ import 'pages/orders_page.dart';
 import 'pages/measurements_page.dart';
 import 'pages/paymentdetails_page.dart';
 
+// Import your new mood board page
+import 'pages/moodboard_page.dart'; // <--- Add this line
+
 // Theme
 import 'theme/theme_provider.dart';
 
@@ -69,7 +72,7 @@ class MyApp extends StatelessWidget {
         '/profile_page': (context) => const ProfilePage(),
         '/paymentdetails_page': (context) => const PaymentDetailsPage(),
         '/gemini_page': (context) => const GeminiPage(),
-        
+        '/moodboard_page': (context) => const MoodboardPage(),
       },
     );
   }
