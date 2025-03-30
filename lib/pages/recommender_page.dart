@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart'; // for debugPrint
+import 'package:flutter/foundation.dart';
 
 class RecommenderPage {
   /// Fetch user measurements from Firestore, parse them, then return "S", "M", "L", or "XL"
@@ -20,7 +20,7 @@ class RecommenderPage {
     final double userChest = _parseDouble(data['chest']);
     final double userShoulder = _parseDouble(data['shoulder']);
 
-    // 4. Compute recommended size with your point-based logic
+    // 4. Compute recommended size with point-based logic
     return _computeRecommendedSize(
       height: userHeight,
       chestCircumference: userChest,

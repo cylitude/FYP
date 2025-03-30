@@ -4,7 +4,7 @@ import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
 
 class LoginPage extends StatefulWidget {
-  // Use super parameter for 'key'
+  
   const LoginPage({super.key});
 
   @override

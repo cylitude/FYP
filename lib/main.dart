@@ -22,9 +22,7 @@ import 'pages/gemini_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/measurements_page.dart';
 import 'pages/paymentdetails_page.dart';
-
-// Import your new mood board page
-import 'pages/moodboard_page.dart'; // <--- Add this line
+import 'pages/moodboard_page.dart'; 
 
 // Theme
 import 'theme/theme_provider.dart';

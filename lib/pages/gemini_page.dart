@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../components/my_app_bar.dart';
 
 /// A page demonstrating Gemini Chatbot features (multi-turn chat & streaming),
-/// now tailored to your Virtual Fashion Assistant "Vava."
+/// now tailored to your Virtual Fashion Assistant "VAVA."
 class GeminiPage extends StatefulWidget {
   const GeminiPage({super.key});
 

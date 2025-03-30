@@ -17,7 +17,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _shippingLine1Controller = TextEditingController();
   final TextEditingController _billingLine1Controller = TextEditingController();
 
-  // Optional: Display errors if something goes wrong
+  // Display errors if something goes wrong
   String _errorMessage = '';
 
   // List to hold saved addresses
