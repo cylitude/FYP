@@ -140,9 +140,9 @@ class MyDrawer extends StatelessWidget {
                 },
               ),
 
-              // 6) PROFILE tile
+              // 6) ACCOUNT tile
               MyListTile(
-                text: "P R O F I L E",
+                text: "A C C O U N T",
                 icon: Icons.person,
                 onTap: () {
                   Navigator.pop(context);
@@ -150,15 +150,7 @@ class MyDrawer extends StatelessWidget {
                 },
               ),
 
-              // 7) SETTINGS tile
-              MyListTile(
-                text: "S E T T I N G S",
-                icon: Icons.settings,
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, '/settings_page');
-                },
-              ),
+              
             ],
           ),
 

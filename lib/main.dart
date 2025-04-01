@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gemini/flutter_gemini.dart'; 
+import 'package:flutter_gemini/flutter_gemini.dart';
 
 // Models
 import 'models/shop.dart';
@@ -16,13 +16,13 @@ import 'pages/login_page.dart';
 import 'pages/register_page.dart';
 import 'pages/shop_page.dart';
 import 'pages/cart_page.dart';
-import 'pages/settings_page.dart';
 import 'pages/profile_page.dart';
 import 'pages/gemini_page.dart';
 import 'pages/orders_page.dart';
 import 'pages/measurements_page.dart';
 import 'pages/paymentdetails_page.dart';
-import 'pages/moodboard_page.dart'; 
+import 'pages/moodboard_page.dart';
+import 'pages/addressdetails_page.dart'; 
 
 // Theme
 import 'theme/theme_provider.dart';
@@ -66,11 +66,11 @@ class MyApp extends StatelessWidget {
         '/shop_page': (context) => const ShopPage(),
         '/cart_page': (context) => const CartPage(),
         '/orders_page': (context) => const OrdersPage(),
-        '/settings_page': (context) => const SettingsPage(),
         '/profile_page': (context) => const ProfilePage(),
         '/paymentdetails_page': (context) => const PaymentDetailsPage(),
         '/gemini_page': (context) => const GeminiPage(),
         '/moodboard_page': (context) => const MoodboardPage(),
+        '/addressdetails_page': (context) => const AddressDetailsPage(), 
       },
     );
   }
