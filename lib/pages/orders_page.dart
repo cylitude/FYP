@@ -7,10 +7,9 @@ import '../services/firestore_template.dart';
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
 
-  // Build a list of item detail widgets from the items array in an order.
+  // Build a list of item detail widgets
   List<Widget> _buildOrderItems(List<dynamic> items) {
     return items.map((item) {
-      // Each item is a map with keys like: name, description, price, imagePath, size, quantity.
       final productName = item['name'] as String? ?? 'Unknown Product';
       final description = item['description'] as String? ?? 'No description';
       final price = item['price'] as num? ?? 0;
@@ -36,7 +35,7 @@ class OrdersPage extends StatelessWidget {
     }).toList();
   }
 
-  // Show order details in a pop-up dialog.
+  // Show order details in a pop-up dialog
   void _showOrderDetails(
     BuildContext context,
     Map<String, dynamic> orderData,
@@ -46,22 +45,6 @@ class OrdersPage extends StatelessWidget {
     final totalPrice = orderData['totalPrice'] as num? ?? 0;
     final timestamp = orderData['timestamp'] as Timestamp?;
     final items = orderData['items'] as List<dynamic>? ?? [];
-
-    // Retrieve shipping address and payment method from the order document.
-    final shippingAddress = orderData['shippingAddress'] as Map<String, dynamic>? ?? {};
-    final paymentMethod = orderData['paymentMethod'] as Map<String, dynamic>? ?? {};
-
-    // Shipping fields
-    final firstName = shippingAddress['firstName'] ?? 'N/A';
-    final lastName = shippingAddress['lastName'] ?? 'N/A';
-    final shippingLine1 = shippingAddress['shippingLine1'] ?? 'N/A';
-    final billingLine1 = shippingAddress['billingLine1'] ?? 'N/A';
-    final collectInStore = shippingAddress['collectInStore'] == true;
-
-    // Payment fields
-    final cardNumber = paymentMethod['cardNumber'] ?? 'N/A';
-    final expiryDate = paymentMethod['expiryDate'] ?? 'N/A';
-    final cvc = paymentMethod['cvc'] ?? 'N/A';
 
     showDialog(
       context: context,
@@ -75,7 +58,6 @@ class OrdersPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Basic order info
                 Text("User ID: $userId"),
                 const SizedBox(height: 8),
                 Text("Total Price: \$${totalPrice.toStringAsFixed(2)}"),
@@ -83,30 +65,6 @@ class OrdersPage extends StatelessWidget {
                 Text(
                   "Timestamp: ${timestamp != null ? timestamp.toDate().toLocal().toString().split('.')[0] : 'N/A'}",
                 ),
-                const SizedBox(height: 12),
-
-                // Payment method
-                const Text(
-                  "Payment Method:",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Text("Card Number: $cardNumber"),
-                Text("Expiry Date: $expiryDate"),
-                Text("CVC: $cvc"),
-                const SizedBox(height: 12),
-
-                // Shipping address
-                const Text(
-                  "Shipping Address:",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                if (collectInStore)
-                  const Text("Collect In-Store: Yes")
-                else ...[
-                  Text("Name: $firstName $lastName"),
-                  Text("Shipping: $shippingLine1"),
-                  Text("Billing: $billingLine1"),
-                ],
                 const SizedBox(height: 12),
 
                 // Items
@@ -122,7 +80,10 @@ class OrdersPage extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Close"),
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.black),
+              ),
             ),
           ],
         );
@@ -132,7 +93,6 @@ class OrdersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get current user's ID.
     final user = FirebaseAuth.instance.currentUser;
     final userId = user?.uid ?? 'guest';
 
@@ -170,10 +130,10 @@ class OrdersPage extends StatelessWidget {
             );
           }
 
-          // Retrieve the list of order documents from Firestore.
+          // Retrieve the list of order documents from Firestore
           final orderDocs = snapshot.data!.docs;
 
-          // Sort orders by timestamp ascending (earliest first).
+          // Sort orders by timestamp ascending (earliest first)
           orderDocs.sort((a, b) {
             final aData = a.data() as Map<String, dynamic>;
             final bData = b.data() as Map<String, dynamic>;
@@ -190,6 +150,13 @@ class OrdersPage extends StatelessWidget {
               final timestamp = orderData['timestamp'] as Timestamp?;
               final items = orderData['items'] as List<dynamic>? ?? [];
 
+              // Instead of items.length, sum the 'quantity' field in each item
+              int totalQuantity = 0;
+              for (final item in items) {
+                final quantity = item['quantity'] as int? ?? 1;
+                totalQuantity += quantity;
+              }
+
               // Use the chronological position to display Order # (earliest = #1)
               final orderNumber = index + 1;
 
@@ -203,11 +170,11 @@ class OrdersPage extends StatelessWidget {
                   subtitle: Text(
                     'Total: \$${totalPrice.toStringAsFixed(2)}\n'
                     'Date: ${timestamp != null ? timestamp.toDate().toLocal().toString().split('.')[0] : 'N/A'}\n'
-                    'Items: ${items.length}',
+                    'Items: $totalQuantity',
                   ),
                   isThreeLine: true,
                   onTap: () {
-                    // Show detailed order info in a pop-up dialog.
+                    // Show detailed order info in a pop-up dialog
                     _showOrderDetails(context, orderData, orderNumber);
                   },
                 ),
