@@ -8,7 +8,7 @@ import '../components/my_button.dart';
 import '../components/my_cart_item_tile.dart';
 import '../models/shop.dart';
 import '../services/firestore_template.dart';
-import '../services/promocode.dart'; 
+import '../services/promocode.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -29,8 +29,8 @@ class _CartPageState extends State<CartPage> {
   List<Map<String, dynamic>> _savedAddresses = [];
 
   // Selected Payment Method & Address
-  String? _selectedCardId;     // e.g., Firestore doc ID or last4 reference
-  String? _selectedAddressId;  // e.g., Firestore doc ID
+  String? _selectedCardId;
+  String? _selectedAddressId;
 
   // For showing errors (if any)
   String _errorMessage = '';
@@ -42,11 +42,11 @@ class _CartPageState extends State<CartPage> {
     _loadSavedAddresses();
   }
 
-  /// Loads all saved cards from Firestore
+  /// Loads all saved cards from Firestore.
   Future<void> _loadSavedCards() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return; // not logged in
+      if (user == null) return;
       final uid = user.uid;
 
       final snapshot = await FirebaseFirestore.instance
@@ -58,7 +58,6 @@ class _CartPageState extends State<CartPage> {
       setState(() {
         _savedCards = snapshot.docs.map((doc) {
           final data = doc.data();
-          // You can store the doc ID or partial info (e.g., last4) as an identifier
           return {
             'id': doc.id,
             'cardNumber': data['cardNumber'] ?? '',
@@ -74,11 +73,11 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
-  /// Loads all saved addresses from Firestore
+  /// Loads all saved addresses from Firestore.
   Future<void> _loadSavedAddresses() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return; // not logged in
+      if (user == null) return;
       final uid = user.uid;
 
       final snapshot = await FirebaseFirestore.instance
@@ -106,7 +105,7 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
-  /// Applies a promo code by checking Firestore (via PromoCodeService)
+  /// Applies a promo code by checking Firestore (via PromoCodeService).
   Future<void> _applyPromoCode() async {
     final code = _promoCodeController.text.trim();
     if (code.isEmpty) {
@@ -119,13 +118,11 @@ class _CartPageState extends State<CartPage> {
     final promoService = PromoCodeService();
     final promo = await promoService.getPromoCode(code);
     if (promo != null) {
-      // Valid code
       setState(() {
         _discountPercentage = promo.discountPercentage;
         _errorMessage = '';
       });
     } else {
-      // Invalid code
       setState(() {
         _discountPercentage = 0;
         _errorMessage = 'Invalid promo code: $code';
@@ -133,7 +130,7 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
-  /// Calculates the total price (price * quantity) of the cart items
+  /// Calculates the subtotal (price * quantity) of the cart items.
   double _calculateSubtotal(List<CartItem> cart) {
     double total = 0.0;
     for (final cartItem in cart) {
@@ -142,28 +139,55 @@ class _CartPageState extends State<CartPage> {
     return total;
   }
 
-  /// Pay button pressed
-  Future<void> payNow() async {
+  /// Re-check the user's total 'spent' and update membership tier accordingly.
+  Future<void> _updateMembershipTier(String userId) async {
+    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final docSnap = await docRef.get();
+    final data = docSnap.data() ?? {};
+    final newSpent = (data['spent'] ?? 0).toDouble();
+
+    String newMembership = 'Bronze';
+    if (newSpent > 200 && newSpent <= 1000) {
+      newMembership = 'Silver';
+    } else if (newSpent > 1000) {
+      newMembership = 'Gold';
+    }
+    await docRef.update({'membership': newMembership});
+  }
+
+  /// Pay button pressed.
+  Future<void> _payNow({
+    required double membershipDiscountPercent,
+  }) async {
     final shopProvider = context.read<Shop>();
     final cart = shopProvider.cart;
-
     final user = FirebaseAuth.instance.currentUser;
     final userId = user?.uid ?? 'guest';
 
-    // Calculate the base subtotal
     final subtotal = _calculateSubtotal(cart);
+    final membershipDiscount = subtotal * membershipDiscountPercent;
+    final afterMembership = subtotal - membershipDiscount;
+    final promoDiscount = afterMembership * (_discountPercentage / 100.0);
+    final finalTotal = afterMembership - promoDiscount;
 
-    // Convert percentage discount to decimal
-    final discount = subtotal * (_discountPercentage / 100.0);
-    final finalTotal = subtotal - discount;
-
-    // Attempt to create an order in Firestore
     try {
+      // Create the order in Firestore (shippingAddress can be 'collect_instore')
       await FirestoreService().createOrder(
         userId: userId,
         cartItems: cart,
         totalPrice: finalTotal,
+        // If you want to store shipping address in Firestore as well:
+        // shippingAddress: _selectedAddressId ?? 'None selected',
       );
+
+      // Update user's total spent
+      final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+      await docRef.update({
+        'spent': FieldValue.increment(finalTotal),
+      });
+
+      // Now update membership if threshold crossed
+      await _updateMembershipTier(userId);
 
       if (!mounted) return;
 
@@ -224,9 +248,8 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<Shop>().cart;
-    final subtotal = _calculateSubtotal(cart);
-    final discountAmount = subtotal * (_discountPercentage / 100.0);
-    final finalTotal = subtotal - discountAmount;
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid ?? 'guest';
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -235,214 +258,258 @@ class _CartPageState extends State<CartPage> {
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title heading
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0, top: 0),
-                child: Text(
-                  "Cart",
-                  style: GoogleFonts.dmSerifDisplay(
-                    fontSize: 32,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 25.0, top: 10, bottom: 25),
-                child: Text(
-                  "Check your cart before paying!",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
-                ),
-              ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final userData = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+          final membership = userData['membership'] ?? 'Bronze';
 
-              // If there's an error (e.g., invalid promo code)
-              if (_errorMessage.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: Text(
-                    _errorMessage,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
+          double membershipDiscountPercent = 0.0;
+          if (membership == 'Silver') {
+            membershipDiscountPercent = 0.10;
+          } else if (membership == 'Gold') {
+            membershipDiscountPercent = 0.20;
+          }
 
-              // PROMO CODE INPUT
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _promoCodeController,
-                        decoration: InputDecoration(
-                          labelText: 'Promo Code',
-                          border: const OutlineInputBorder(),
-                          suffixIcon: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () {
-                              _promoCodeController.clear();
-                              setState(() {
-                                _discountPercentage = 0;
-                                _errorMessage = '';
-                              });
-                            },
-                          ),
-                        ),
+          final subtotal = _calculateSubtotal(cart);
+          final membershipDiscount = subtotal * membershipDiscountPercent;
+          final afterMembership = subtotal - membershipDiscount;
+          final promoDiscount = afterMembership * (_discountPercentage / 100.0);
+          final finalTotal = afterMembership - promoDiscount;
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title heading
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25.0, top: 0),
+                    child: Text(
+                      "Cart",
+                      style: GoogleFonts.dmSerifDisplay(
+                        fontSize: 32,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _applyPromoCode,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: const Text(
-                        'Apply',
-                        style: TextStyle(color: Colors.white),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25.0, top: 10, bottom: 25),
+                    child: Text(
+                      "Check your cart before paying!",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary,
                       ),
                     ),
-                  ],
-                ),
-              ),
-
-              // SELECT PAYMENT METHOD (Dropdown)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(25, 16, 25, 0),
-                child: DropdownButtonFormField<String>(
-                  value: _selectedCardId,
-                  decoration: const InputDecoration(
-                    labelText: 'Payment Method',
-                    border: OutlineInputBorder(),
                   ),
-                  items: _savedCards.map((card) {
-                    final cardNumber = card['cardNumber'] as String;
-                    final last4 = cardNumber.length >= 4
-                        ? cardNumber.substring(cardNumber.length - 4)
-                        : cardNumber;
-                    return DropdownMenuItem(
-                      value: card['id'] as String,
-                      child: Text('Card ending in ****$last4'),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCardId = value;
-                    });
-                  },
-                ),
-              ),
 
-              // SELECT SHIPPING ADDRESS (Dropdown)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(25, 16, 25, 0),
-                child: DropdownButtonFormField<String>(
-                  value: _selectedAddressId,
-                  decoration: const InputDecoration(
-                    labelText: 'Shipping Address',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: _savedAddresses.map((address) {
-                    final firstName = address['firstName'] as String;
-                    final lastName = address['lastName'] as String;
-                    final shipping = address['shippingLine1'] as String;
-                    final display = '$firstName $lastName, $shipping';
-                    return DropdownMenuItem(
-                      value: address['id'] as String,
-                      child: Text(display),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedAddressId = value;
-                    });
-                  },
-                ),
-              ),
-
-              // Cart list
-              Expanded(
-                child: cart.isEmpty
-                    ? Center(
-                        child: Text(
-                          'Your cart is empty..',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.inversePrimary,
-                          ),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: cart.length,
-                        itemBuilder: (context, index) {
-                          final cartItem = cart[index];
-                          return MyCartItemTile(item: cartItem);
-                        },
+                  // If there's an error (e.g., invalid promo code)
+                  if (_errorMessage.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                      child: Text(
+                        _errorMessage,
+                        style: const TextStyle(color: Colors.red),
                       ),
-              ),
+                    ),
 
-              // GREY BOX: Summaries (Subtotal, discount, final total)
-              if (cart.isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 25),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
-                      Text('Savings from Promo Code: -\$${discountAmount.toStringAsFixed(2)}'),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Total: \$${finalTotal.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Pay button
-              Padding(
-                padding: const EdgeInsets.all(25.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: cart.isEmpty
-                          ? const SizedBox()
-                          : MyButton(
-                              onTap: payNow,
-                              widget: Center(
-                                child: Text(
-                                  'P A Y   N O W',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .inversePrimary,
-                                  ),
-                                ),
+                  // PROMO CODE INPUT
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _promoCodeController,
+                            decoration: InputDecoration(
+                              labelText: 'Promo Code',
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  _promoCodeController.clear();
+                                  setState(() {
+                                    _discountPercentage = 0;
+                                    _errorMessage = '';
+                                  });
+                                },
                               ),
                             ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _applyPromoCode,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          child: const Text(
+                            'Apply',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+
+                  // PAYMENT METHOD
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(25, 16, 25, 0),
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedCardId,
+                      decoration: const InputDecoration(
+                        labelText: 'Payment Method',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: _savedCards.map((card) {
+                        final cardNumber = card['cardNumber'] as String;
+                        final last4 = cardNumber.length >= 4
+                            ? cardNumber.substring(cardNumber.length - 4)
+                            : cardNumber;
+                        return DropdownMenuItem(
+                          value: card['id'] as String,
+                          child: Text('Card ending in ****$last4'),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedCardId = value;
+                        });
+                      },
+                    ),
+                  ),
+
+                  // SHIPPING ADDRESS with "Collect in-store" option
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(25, 16, 25, 0),
+                    child: DropdownButtonFormField<String>(
+                      value: _selectedAddressId,
+                      decoration: const InputDecoration(
+                        labelText: 'Shipping Address',
+                        border: OutlineInputBorder(),
+                      ),
+                      items: [
+                        // Permanent "Collect in-store" option
+                        const DropdownMenuItem(
+                          value: 'collect_instore',
+                          child: Text('Collect in-store'),
+                        ),
+                        // Then user's saved addresses
+                        ..._savedAddresses.map((address) {
+                          final firstName = address['firstName'] as String;
+                          final lastName = address['lastName'] as String;
+                          final shipping = address['shippingLine1'] as String;
+                          final display = '$firstName $lastName, $shipping';
+                          return DropdownMenuItem(
+                            value: address['id'] as String,
+                            child: Text(display),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedAddressId = value;
+                        });
+                      },
+                    ),
+                  ),
+
+                  // Cart list
+                  Expanded(
+                    child: cart.isEmpty
+                        ? Center(
+                            child: Text(
+                              'Your cart is empty..',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.inversePrimary,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: cart.length,
+                            itemBuilder: (context, index) {
+                              final cartItem = cart[index];
+                              return MyCartItemTile(item: cartItem);
+                            },
+                          ),
+                  ),
+
+                  // Summaries
+                  if (cart.isNotEmpty)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.symmetric(horizontal: 25),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
+                          Text(
+                            'Membership Discount '
+                            '(${(membershipDiscountPercent * 100).toStringAsFixed(0)}% - $membership): '
+                            '-\$${membershipDiscount.toStringAsFixed(2)}',
+                          ),
+                          Text(
+                            'Promo Code Discount '
+                            '($_discountPercentage%): '
+                            '-\$${promoDiscount.toStringAsFixed(2)}',
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Total: \$${finalTotal.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Pay button
+                  Padding(
+                    padding: const EdgeInsets.all(25.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: cart.isEmpty
+                              ? const SizedBox()
+                              : MyButton(
+                                  onTap: () => _payNow(
+                                    membershipDiscountPercent: membershipDiscountPercent,
+                                  ),
+                                  widget: Center(
+                                    child: Text(
+                                      'P A Y   N O W',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context).colorScheme.inversePrimary,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
