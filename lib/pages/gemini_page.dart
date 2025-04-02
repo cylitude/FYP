@@ -13,16 +13,10 @@ class GeminiPage extends StatefulWidget {
 }
 
 class _GeminiPageState extends State<GeminiPage> {
-  // Store messages as ChatMessage objects
   final List<ChatMessage> _chatMessages = [];
-
-  // For Gemini conversation context
   final List<Content> _conversation = [];
-
-  // For streaming subscription
   StreamSubscription<dynamic>? _streamSubscription;
 
-  // Two ChatUsers: one for the user, one for the assistant.
   final ChatUser _user = ChatUser(
     id: 'user',
     firstName: 'You',
@@ -41,46 +35,83 @@ class _GeminiPageState extends State<GeminiPage> {
     super.dispose();
   }
 
-  /// Optionally scroll to bottom
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // dash_chat_2 typically auto-scrolls
     });
   }
 
-  /// Handle sending a user message (multi-turn chat)
+  Future<void> _showRecommendationDialog() async {
+    if (!mounted) return;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Recommendation"),
+          content: const Text(
+            "Do you want VAVA to recommend you what you are looking for?",
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.black),
+              child: const Text("Yes"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.black),
+              child: const Text("No"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) return;
+
+    if (result == true) {
+      // Instead of navigating to ShopPage, navigate to PopupPage.
+      Navigator.pushNamed(context, '/popup_page');
+    }
+  }
+
   Future<void> _handleSendMessage(ChatMessage message) async {
     final text = message.text.trim();
     if (text.isEmpty) return;
 
-    // 1. Add user message locally
     setState(() {
-      // Insert at index 0 to show new messages at the "top"
       _chatMessages.insert(0, message);
       _conversation.add(Content(parts: [Part.text(text)], role: 'user'));
     });
 
-    // 2. Call Gemini’s chat endpoint
     try {
       final response = await Gemini.instance.chat(_conversation);
-      // Remove all asterisks from the model response
-      final modelText = (response?.output ?? '').replaceAll('*', '');
+      if (!mounted) return;
 
-      // 3. If the model responds, add that message
+      final modelText = (response?.output ?? '').replaceAll('*', '');
       if (modelText.isNotEmpty) {
-        final botMessage = ChatMessage(
-          user: _assistant,
-          text: modelText,
-          createdAt: DateTime.now(),
-        );
         setState(() {
-          _chatMessages.insert(0, botMessage);
+          _chatMessages.insert(
+            0,
+            ChatMessage(
+              user: _assistant,
+              text: modelText,
+              createdAt: DateTime.now(),
+            ),
+          );
           _conversation.add(
             Content(parts: [Part.text(modelText)], role: 'model'),
           );
         });
       }
     } catch (e) {
+      if (!mounted) return;
       final errorMessage = ChatMessage(
         user: _assistant,
         text: "Error: $e",
@@ -90,11 +121,9 @@ class _GeminiPageState extends State<GeminiPage> {
         _chatMessages.insert(0, errorMessage);
       });
     }
-
     _scrollToBottom();
   }
 
-  /// Demonstrates streaming a single prompt
   void _streamSinglePrompt() {
     _streamSubscription?.cancel();
 
@@ -110,28 +139,29 @@ class _GeminiPageState extends State<GeminiPage> {
       _chatMessages.insert(0, userStreamMsg);
     });
 
-    // Stream from Gemini
     _streamSubscription = Gemini.instance
         .promptStream(parts: [Part.text(text)])
         .listen(
       (event) {
-        // Safely retrieve the output using a local variable
         final out = event?.output ?? '';
         if (out.isNotEmpty) {
-          // Remove asterisks from the streaming response
           final cleanedOutput = out.replaceAll('*', '');
-          final streamingResponse = ChatMessage(
-            user: _assistant,
-            text: cleanedOutput,
-            createdAt: DateTime.now(),
-          );
+          if (!mounted) return;
           setState(() {
-            _chatMessages.insert(0, streamingResponse);
+            _chatMessages.insert(
+              0,
+              ChatMessage(
+                user: _assistant,
+                text: cleanedOutput,
+                createdAt: DateTime.now(),
+              ),
+            );
           });
           _scrollToBottom();
         }
       },
       onError: (error) {
+        if (!mounted) return;
         final errorMessage = ChatMessage(
           user: _assistant,
           text: "Stream error: $error",
@@ -142,6 +172,7 @@ class _GeminiPageState extends State<GeminiPage> {
         });
       },
       onDone: () {
+        if (!mounted) return;
         final doneMessage = ChatMessage(
           user: _assistant,
           text: "Stream ended.",
@@ -158,91 +189,81 @@ class _GeminiPageState extends State<GeminiPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Remove the top bar text by passing an empty string to MyAppBar
-      appBar: const MyAppBar(
-        title: '',
-        actions: [],
-      ),
-
-      // Soft purple background
+      appBar: const MyAppBar(title: '', actions: []),
       backgroundColor: const Color.fromARGB(255, 123, 105, 151),
-
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             children: [
-              // Bold heading "Vava"
               Padding(
-                padding: const EdgeInsets.only(left: 25.0, top: 25, bottom: 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Vava",
-                    style: GoogleFonts.dmSerifDisplay(
-                      fontSize: 32,
-                      color: Colors.deepPurple.shade800,
+                padding: const EdgeInsets.only(
+                  left: 25.0,
+                  top: 25,
+                  bottom: 8,
+                  right: 25,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "VAVA",
+                      style: GoogleFonts.pacifico(
+                        fontSize: 36,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
+                    ElevatedButton(
+                      onPressed: _showRecommendationDialog,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.deepPurple,
+                        side: const BorderSide(color: Colors.deepPurple),
+                      ),
+                      child: const Text("Recommend me!"),
+                    ),
+                  ],
                 ),
               ),
-              // Intro text
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 25.0,
                   vertical: 8,
                 ),
-                child: Text(
-                  "Introducing our Virtual Fashion Assistant Vava! "
-                  "Powered by Google Gemini, Vava is here to respond to your "
-                  "prompts on anything fashion related.",
+                child: const Text(
+                  "Introducing our Virtual Fashion Assistant Vava! Powered by Google Gemini, Vava is here to respond to your prompts on anything fashion related.",
                   style: TextStyle(
-                    color: const Color.fromARGB(255, 16, 16, 16),
+                    color: Color.fromARGB(255, 247, 243, 243),
                     height: 1.5,
                   ),
                 ),
               ),
-
-              // Wrap DashChat in a Theme to force black cursor and text
               Expanded(
                 child: Theme(
                   data: Theme.of(context).copyWith(
                     textSelectionTheme: const TextSelectionThemeData(
-                      cursorColor: Colors.black, // black cursor
+                      cursorColor: Colors.black,
                     ),
-                    // This sets a default text color for input text
                     textTheme: const TextTheme(
                       bodyMedium: TextStyle(color: Colors.black),
                     ),
                   ),
                   child: DashChat(
-                    // Current user
                     currentUser: _user,
-
-                    // List of messages
                     messages: _chatMessages,
-
-                    // Callback on sending a message
                     onSend: (ChatMessage message) {
                       _handleSendMessage(message);
                     },
-
-                    // Customize message display
                     messageOptions: MessageOptions(
                       showOtherUsersAvatar: true,
                       showCurrentUserAvatar: true,
                       showTime: true,
-                      // Bubble colors for user vs assistant
                       currentUserContainerColor: Colors.blueGrey,
                       containerColor: Colors.white,
                     ),
-
-                    // Basic list options
                     messageListOptions: const MessageListOptions(),
-
-                    // Input styling
                     inputOptions: InputOptions(
-                      // Use inputDecoration for border & fill
                       inputDecoration: InputDecoration(
                         hintText: "Type your message...",
                         filled: true,
@@ -256,18 +277,15 @@ class _GeminiPageState extends State<GeminiPage> {
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      // Add trailing icon for streaming
                       trailing: <Widget>[
                         IconButton(
                           icon: const Icon(Icons.stream),
                           onPressed: _streamSinglePrompt,
                           tooltip: "Stream single prompt",
-                          color: Colors.deepPurple, // Purple icon
+                          color: Colors.deepPurple,
                         ),
                       ],
                     ),
-
-                    // Minimal scroll-to-bottom widget
                     scrollToBottomOptions: const ScrollToBottomOptions(),
                   ),
                 ),

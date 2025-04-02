@@ -23,6 +23,7 @@ import 'pages/measurements_page.dart';
 import 'pages/paymentdetails_page.dart';
 import 'pages/moodboard_page.dart';
 import 'pages/addressdetails_page.dart'; 
+import 'pages/popup_page.dart'; 
 
 // Theme
 import 'theme/theme_provider.dart';
@@ -70,7 +71,8 @@ class MyApp extends StatelessWidget {
         '/paymentdetails_page': (context) => const PaymentDetailsPage(),
         '/gemini_page': (context) => const GeminiPage(),
         '/moodboard_page': (context) => const MoodboardPage(),
-        '/addressdetails_page': (context) => const AddressDetailsPage(), 
+        '/addressdetails_page': (context) => const AddressDetailsPage(),
+        '/popup_page': (context) => const PopupPage(),  
       },
     );
   }
