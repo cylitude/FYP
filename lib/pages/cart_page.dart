@@ -139,23 +139,50 @@ class _CartPageState extends State<CartPage> {
     return total;
   }
 
-  /// Re-check the user's total 'spent' and update membership tier accordingly.
-  Future<void> _updateMembershipTier(String userId) async {
-    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
-    final docSnap = await docRef.get();
-    final data = docSnap.data() ?? {};
-    final newSpent = (data['spent'] ?? 0).toDouble();
+  /// For membership logic, we sum all orders from 'orders' for this user,
+  /// so it mirrors the dynamic progress logic in profile_page.
+  Future<double> _getTotalSpentFromOrders(String userId) async {
+    final query = await FirebaseFirestore.instance
+        .collection('orders')
+        .where('userId', isEqualTo: userId)
+        .get();
 
-    String newMembership = 'Bronze';
-    if (newSpent > 200 && newSpent <= 1000) {
-      newMembership = 'Silver';
-    } else if (newSpent > 1000) {
-      newMembership = 'Gold';
+    double sum = 0.0;
+    for (final doc in query.docs) {
+      final data = doc.data();
+      sum += (data['totalPrice'] ?? 0).toDouble();
     }
-    await docRef.update({'membership': newMembership});
+    return sum;
   }
 
-  /// Pay button pressed.
+  /// Decide membership tier by totalSpent, matching profile_page logic:
+  /// 0-200 => Bronze
+  /// 201-1000 => Silver
+  /// >1000 => Gold
+  String _decideTier(double totalSpent) {
+    if (totalSpent <= 200) {
+      return 'Bronze';
+    } else if (totalSpent > 200 && totalSpent <= 1000) {
+      return 'Silver';
+    } else {
+      return 'Gold';
+    }
+  }
+
+  /// Update membership in user doc, if it doesn't match the correct tier
+  Future<void> _updateMembershipTier(String userId, String correctTier) async {
+    final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final userDoc = await docRef.get();
+    final userData = userDoc.data() ?? {};
+    final membership = userData['membership'] ?? 'Bronze';
+
+    if (membership != correctTier) {
+      await docRef.update({'membership': correctTier});
+    }
+  }
+
+  /// Pay button pressed => Create an order in Firestore, then update membership
+  /// by summing orders (not by trusting the user doc's 'spent' field).
   Future<void> _payNow({
     required double membershipDiscountPercent,
   }) async {
@@ -171,26 +198,27 @@ class _CartPageState extends State<CartPage> {
     final finalTotal = afterMembership - promoDiscount;
 
     try {
-      // Create the order in Firestore (shippingAddress can be 'collect_instore')
+      // Create the order in Firestore
       await FirestoreService().createOrder(
         userId: userId,
         cartItems: cart,
         totalPrice: finalTotal,
-        // If you want to store shipping address in Firestore as well:
-        // shippingAddress: _selectedAddressId ?? 'None selected',
       );
 
-      // Update user's total spent
+      // We also increment the 'spent' field for historical reasons if you like
       final docRef = FirebaseFirestore.instance.collection('users').doc(userId);
       await docRef.update({
         'spent': FieldValue.increment(finalTotal),
       });
 
-      // Now update membership if threshold crossed
-      await _updateMembershipTier(userId);
+      // Now recalc membership from 'orders' sum => set correct membership
+      final newTotalSpent = await _getTotalSpentFromOrders(userId);
+      final correctTier = _decideTier(newTotalSpent);
+      await _updateMembershipTier(userId, correctTier);
 
       if (!mounted) return;
 
+      // Show success pop-up
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -258,25 +286,42 @@ class _CartPageState extends State<CartPage> {
         elevation: 0,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: StreamBuilder<DocumentSnapshot>(
+      body: StreamBuilder<QuerySnapshot>(
+        // Instead of streaming the user doc, we stream orders
+        // so we can sum them in real-time (like profile_page).
         stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
+            .collection('orders')
+            .where('userId', isEqualTo: userId)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
-          final userData = snapshot.data!.data() as Map<String, dynamic>? ?? {};
-          final membership = userData['membership'] ?? 'Bronze';
 
+          // Sum up totalSpent from all orders
+          double totalSpent = 0.0;
+          for (final doc in snapshot.data!.docs) {
+            final data = doc.data() as Map<String, dynamic>? ?? {};
+            totalSpent += (data['totalPrice'] ?? 0).toDouble();
+          }
+
+          // Decide tier from totalSpent
+          String correctTier = 'Bronze';
+          if (totalSpent > 200 && totalSpent <= 1000) {
+            correctTier = 'Silver';
+          } else if (totalSpent > 1000) {
+            correctTier = 'Gold';
+          }
+
+          // Convert that tier to discount
           double membershipDiscountPercent = 0.0;
-          if (membership == 'Silver') {
+          if (correctTier == 'Silver') {
             membershipDiscountPercent = 0.10;
-          } else if (membership == 'Gold') {
+          } else if (correctTier == 'Gold') {
             membershipDiscountPercent = 0.20;
           }
 
+          // Now compute the cart's subtotal & final total
           final subtotal = _calculateSubtotal(cart);
           final membershipDiscount = subtotal * membershipDiscountPercent;
           final afterMembership = subtotal - membershipDiscount;
@@ -294,9 +339,7 @@ class _CartPageState extends State<CartPage> {
                     padding: const EdgeInsets.only(left: 25.0, top: 0),
                     child: Text(
                       "Cart",
-                      style: GoogleFonts.dmSerifDisplay(
-                        fontSize: 32,
-                      ),
+                      style: GoogleFonts.dmSerifDisplay(fontSize: 32),
                     ),
                   ),
                   Padding(
@@ -459,7 +502,7 @@ class _CartPageState extends State<CartPage> {
                           Text('Subtotal: \$${subtotal.toStringAsFixed(2)}'),
                           Text(
                             'Membership Discount '
-                            '(${(membershipDiscountPercent * 100).toStringAsFixed(0)}% - $membership): '
+                            '(${(membershipDiscountPercent * 100).toStringAsFixed(0)}% - $correctTier): '
                             '-\$${membershipDiscount.toStringAsFixed(2)}',
                           ),
                           Text(

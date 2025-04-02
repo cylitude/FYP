@@ -6,28 +6,33 @@ class FirestoreService {
   final CollectionReference orders =
       FirebaseFirestore.instance.collection('orders');
 
-  // CREATE: Add a new order to Firestore
+  // CREATE: Add a new order to Firestore, with optional shipping and payment info.
   Future<void> createOrder({
     required String userId,
     required List<CartItem> cartItems,
     required double totalPrice,
+    Map<String, dynamic>? shippingAddress,  // New field
+    Map<String, dynamic>? paymentMethod,    // New field
   }) {
-    // Convert each CartItem to a Map for Firestore
+    // Convert each CartItem to a Map for Firestore, including quantity
     final itemsData = cartItems.map((cartItem) {
       return {
         'name': cartItem.product.name,
         'price': cartItem.product.price,
         'description': cartItem.product.description,
         'imagePath': cartItem.product.imagePath,
-        'size': cartItem.size, // store the chosen size
+        'size': cartItem.size,
+        'quantity': cartItem.quantity, // store the chosen quantity
       };
     }).toList();
 
     return orders.add({
-      'userId': userId,          // which user placed the order
-      'items': itemsData,        // list of items (product + size) in the order
-      'totalPrice': totalPrice,  // total price of this order
+      'userId': userId,               // which user placed the order
+      'items': itemsData,             // list of items (product + size + quantity)
+      'totalPrice': totalPrice,       // total price of this order
       'timestamp': Timestamp.now(),
+      'shippingAddress': shippingAddress ?? {},
+      'paymentMethod': paymentMethod ?? {},
     });
   }
 
