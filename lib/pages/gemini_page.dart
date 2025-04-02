@@ -23,7 +23,6 @@ class _GeminiPageState extends State<GeminiPage> {
   StreamSubscription<dynamic>? _streamSubscription;
 
   // Two ChatUsers: one for the user, one for the assistant.
-  // Removed 'const' keywords here.
   final ChatUser _user = ChatUser(
     id: 'user',
     firstName: 'You',
@@ -64,7 +63,8 @@ class _GeminiPageState extends State<GeminiPage> {
     // 2. Call Gemini’s chat endpoint
     try {
       final response = await Gemini.instance.chat(_conversation);
-      final modelText = response?.output ?? '';
+      // Remove all asterisks from the model response
+      final modelText = (response?.output ?? '').replaceAll('*', '');
 
       // 3. If the model responds, add that message
       if (modelText.isNotEmpty) {
@@ -115,11 +115,14 @@ class _GeminiPageState extends State<GeminiPage> {
         .promptStream(parts: [Part.text(text)])
         .listen(
       (event) {
-        final out = event?.output;
-        if (out != null && out.isNotEmpty) {
+        // Safely retrieve the output using a local variable
+        final out = event?.output ?? '';
+        if (out.isNotEmpty) {
+          // Remove asterisks from the streaming response
+          final cleanedOutput = out.replaceAll('*', '');
           final streamingResponse = ChatMessage(
             user: _assistant,
-            text: out,
+            text: cleanedOutput,
             createdAt: DateTime.now(),
           );
           setState(() {
