@@ -2,6 +2,13 @@
 
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
+2nd April Upgrades
+- one of my final touches and iterations, which include 
+1. Dynamic Membership Progress Indicator (Rewards System) 
+2. 'VAVA recommends' feature
+3. cleaned up VAVA page UI
+4. cleaned up Orders page
+
 26th Mar Upgrades 
 1. Added a mood board page, while cleaning up some UX/UI
 
