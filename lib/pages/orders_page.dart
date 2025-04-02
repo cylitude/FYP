@@ -7,9 +7,87 @@ import '../services/firestore_template.dart';
 class OrdersPage extends StatelessWidget {
   const OrdersPage({super.key});
 
+  // Build a list of item detail widgets
+  List<Widget> _buildOrderItems(List<dynamic> items) {
+    return items.map((item) {
+      // Each item is a map with keys like: name, description, price, imagePath, size
+      final productName = item['name'] as String? ?? 'Unknown Product';
+      final description = item['description'] as String? ?? 'No description';
+      final price = item['price'] as num? ?? 0;
+      final size = item['size'] as String? ?? 'N/A';
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              productName,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            Text('Description: $description', style: const TextStyle(fontSize: 13)),
+            Text('Price: \$${price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13)),
+            Text('Size: $size', style: const TextStyle(fontSize: 13)),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // Show order details in a pop-up dialog
+  void _showOrderDetails(
+    BuildContext context,
+    Map<String, dynamic> orderData,
+    int orderNumber,
+  ) {
+    final userId = orderData['userId'] as String? ?? 'Unknown User';
+    final totalPrice = orderData['totalPrice'] as num? ?? 0;
+    final timestamp = orderData['timestamp'] as Timestamp?;
+    final items = orderData['items'] as List<dynamic>? ?? [];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Order #$orderNumber Details",
+            style: GoogleFonts.dmSerifDisplay(fontSize: 20),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("User ID: $userId"),
+                const SizedBox(height: 8),
+                Text("Total Price: \$${totalPrice.toStringAsFixed(2)}"),
+                const SizedBox(height: 8),
+                Text(
+                  "Timestamp: ${timestamp != null ? timestamp.toDate().toLocal().toString().split('.')[0] : 'N/A'}",
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Items:",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                ..._buildOrderItems(items),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Close"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Get the current user ID; if no user is logged in, fallback to 'guest'
+    // Get current user's ID
     final user = FirebaseAuth.instance.currentUser;
     final userId = user?.uid ?? 'guest';
 
@@ -24,8 +102,10 @@ class OrdersPage extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Error: ${snapshot.error}',
-                  style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
             );
           }
 
@@ -33,46 +113,57 @@ class OrdersPage extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // If there are no orders for the user
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
               child: Text(
                 'No orders found.',
                 style: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                    fontSize: 18),
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  fontSize: 18,
+                ),
               ),
             );
           }
 
-          // Retrieve the list of orders from Firestore
-          final orders = snapshot.data!.docs;
+          // Retrieve the list of order documents from Firestore
+          final orderDocs = snapshot.data!.docs;
+
+          // Sort orders by timestamp ascending (earliest first)
+          orderDocs.sort((a, b) {
+            final aData = a.data() as Map<String, dynamic>;
+            final bData = b.data() as Map<String, dynamic>;
+            final aTimestamp = aData['timestamp'] as Timestamp;
+            final bTimestamp = bData['timestamp'] as Timestamp;
+            return aTimestamp.compareTo(bTimestamp);
+          });
 
           return ListView.builder(
-            itemCount: orders.length,
+            itemCount: orderDocs.length,
             itemBuilder: (context, index) {
-              // Each document contains the order data
-              final orderData =
-                  orders[index].data() as Map<String, dynamic>;
-              final totalPrice = orderData['totalPrice'] as num;
-              final timestamp = orderData['timestamp'] as Timestamp;
-              final orderId = orders[index].id;
-              final items = orderData['items'] as List<dynamic>;
+              final orderData = orderDocs[index].data() as Map<String, dynamic>;
+              final totalPrice = orderData['totalPrice'] as num? ?? 0;
+              final timestamp = orderData['timestamp'] as Timestamp?;
+              final items = orderData['items'] as List<dynamic>? ?? [];
+
+              // Use the chronological position to display Order # (earliest = #1)
+              final orderNumber = index + 1;
 
               return Card(
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
                 child: ListTile(
-                  title: Text('Order ID: $orderId',
-                      style: GoogleFonts.dmSerifDisplay(fontSize: 16)),
+                  title: Text(
+                    'Order #$orderNumber',
+                    style: GoogleFonts.dmSerifDisplay(fontSize: 16),
+                  ),
                   subtitle: Text(
                     'Total: \$${totalPrice.toStringAsFixed(2)}\n'
-                    'Date: ${timestamp.toDate().toLocal().toString().split('.')[0]}\n'
+                    'Date: ${timestamp != null ? timestamp.toDate().toLocal().toString().split('.')[0] : 'N/A'}\n'
                     'Items: ${items.length}',
                   ),
                   isThreeLine: true,
                   onTap: () {
-                    // Optionally, navigate to an order detail page
+                    // Show detailed order info in a pop-up dialog
+                    _showOrderDetails(context, orderData, orderNumber);
                   },
                 ),
               );
