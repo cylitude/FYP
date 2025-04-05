@@ -254,7 +254,7 @@ class _AddressDetailsPageState extends State<AddressDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Update Your Profile',
+          'Update Your Address',
           style: GoogleFonts.dmSerifDisplay(
             fontSize: 24,
             fontWeight: FontWeight.normal,
