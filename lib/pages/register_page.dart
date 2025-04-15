@@ -4,7 +4,7 @@ import 'package:minimalecom/components/my_signin.dart';
 import 'package:minimalecom/components/my_textfield.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key}); // Use super parameter
+  const RegisterPage({super.key}); 
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -36,7 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (!mounted) return;
 
       // 4) Navigate to MeasurementsPage instead of ShopPage
-      //    (Ensure '/measurements_page' is defined in your MaterialApp routes)
+      
       Navigator.pushReplacementNamed(context, '/measurements_page');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {

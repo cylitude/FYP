@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // for TextInputFormatter
+import 'package:flutter/services.dart'; 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -78,7 +78,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
 
       // Basic validation
       if (cardNumber.length != 16 ||
-          expiryDate.length != 5 || // "MM/YY" => total 5 chars
+          expiryDate.length != 5 || 
           cvc.length != 3) {
         setState(() {
           _errorMessage =
@@ -127,7 +127,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Common InputDecoration with black text settings
+    
     final baseDecoration = InputDecoration(
       border: const OutlineInputBorder(),
       enabledBorder: const OutlineInputBorder(
@@ -138,8 +138,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
       ),
       fillColor: Colors.white,
       filled: true,
-      labelStyle: const TextStyle(color: Colors.black), // Label text color
-      hintStyle: const TextStyle(color: Colors.black),  // Hint text color
+      labelStyle: const TextStyle(color: Colors.black), 
+      hintStyle: const TextStyle(color: Colors.black),  
     );
 
     return Scaffold(

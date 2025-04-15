@@ -43,7 +43,7 @@ class PopupPage extends StatelessWidget {
                   child: Center(
                     child: MyProductTile(
                       product: oxfordBlackShirt,
-                      recommendedSize: 'M', // Adjust as needed
+                      recommendedSize: 'XL', // Adjust as needed
                     ),
                   ),
                 ),

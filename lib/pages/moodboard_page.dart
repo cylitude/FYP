@@ -131,7 +131,7 @@ class _MoodboardPageState extends State<MoodboardPage> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 12.0,
                         mainAxisSpacing: 12.0,
-                        // Use an aspect ratio of 1 for square boxes; adjust if needed.
+                        
                         childAspectRatio: 1,
                         children: const [
                           MoodboardTile(imagePath: 'assets/OldMoney1.png'),
