@@ -2,6 +2,9 @@
 
 A new Flutter project. Utilising Mitch Koko's template as a headstart, I aim to create an AI-powered virtual fashion assistant 
 
+11 May Upgrades
+- One of my final touches, where I made the dummy "Recommend Me" button a reality.
+
 2nd April Upgrades
 - one of my final touches and iterations, which include 
 1. Dynamic Membership Progress Indicator (Rewards System) 
