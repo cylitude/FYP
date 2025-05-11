@@ -1,7 +1,8 @@
+// lib/models/shop.dart
+
 import 'package:flutter/material.dart';
 import 'product.dart';
 
-/// Represents a single item in the cart: a Product + chosen size + quantity
 class CartItem {
   final Product product;
   final String size;
@@ -15,79 +16,97 @@ class CartItem {
 }
 
 class Shop extends ChangeNotifier {
-  // Products for sale
+  // Your catalog with 30 keywords per item
   final List<Product> _shop = [
     Product(
       name: "Cotton White Shirt",
       price: 58.88,
       description: "Perfect for a casual date",
       imagePath: 'assets/FormalWhiteShirt.png',
+      keywords: [
+        'cotton', 'white', 'shirt', 'casual', 'date',
+        'long-sleeve', 'button-down', 'collar',
+        'spring', 'wrinkle-resistant', 'soft', 'neutral',
+        'formal', 'semi-formal', 'staple', 'minimal', 'slim-fit', 'tailored', 
+        'everyday', 'office',
+      ],
     ),
     Product(
       name: "Crochet Shirt",
       price: 78.88,
       description: "Perfect for the beach",
       imagePath: 'assets/CrochetShirt.png',
+      keywords: [
+        'crochet', 'shirt', 'beach', 'summer', 'short-sleeve',
+        'knit', 'handmade', 'textured', 'lightweight', 'airy',
+        'casual', 'festival', 'vacation', 'resort', 'breezy',
+        'layered', 'crochet-pattern', 'fringe', 'bohemian', 'vintage',
+        'crochet-top', 'crochet-blouse', 'pastel', 
+        'cropped', 'swim-cover', 'artisan', 'seaside', 'relaxed-fit',
+      ],
     ),
     Product(
       name: "Oxford Black Shirt",
       price: 88.88,
       description: "Perfect for date nights",
       imagePath: 'assets/FormalBlackShirt.png',
+      keywords: [
+        'oxford', 'black', 'shirt', 'formal', 'date',
+        'dress', 'classic', 'button-down', 'long-sleeve', 'collar',
+        'slim-fit', 'tailored', 'office', 'evening', 'night-out',
+        'versatile', 'neutral', 'sleek', 'polished', 'menswear',
+        'business', 'professional', 'elegant', 'timeless', 'preppy', 
+        'fabric-blend', 'durable', 
+      ],
     ),
     Product(
       name: "Boxy Blue Shirt",
       price: 68.88,
       description: "Boxy, oversized fit",
       imagePath: 'assets/BlueBoxyShirt.png',
+      keywords: [
+        'boxy', 'blue', 'shirt', 'oversized', 'street',
+        'casual', 'urban', 'denim-look', 'chambray', 'relaxed-fit',
+        'boxy-cut', 'loose', 'comfortable', 'menswear-inspired', 'unisex',
+        'pastel', 'light-blue', 'summer', 'layering', 'trendy',
+        'edgy', 'minimalist', 'hipster', 'cotton-blend', 'breathable',
+        'daily-wear', 'lounge', 'denim-inspired', 'short-sleeve', 'drop-shoulder',
+      ],
     ),
   ];
 
-  // The cart is now a list of CartItem
   final List<CartItem> _cart = [];
 
-  // Get product list
   List<Product> get shop => _shop;
-
-  // Get user cart
   List<CartItem> get cart => _cart;
 
-  /// Add item to cart, specifying the chosen size.
-  /// If the same product & size is already in the cart, just increment quantity.
   void addToCart(Product product, String size) {
-    final existingIndex = _cart.indexWhere((cartItem) =>
-        cartItem.product.name == product.name && cartItem.size == size);
-
-    if (existingIndex != -1) {
-      // Already in cart => increment the quantity
-      _cart[existingIndex].quantity++;
+    final idx = _cart.indexWhere((c) =>
+      c.product.name == product.name && c.size == size
+    );
+    if (idx != -1) {
+      _cart[idx].quantity++;
     } else {
-      // Not in cart => add a new CartItem
-      _cart.add(CartItem(product: product, size: size, quantity: 1));
+      _cart.add(CartItem(product: product, size: size));
     }
     notifyListeners();
   }
 
-  /// Remove entire item from cart
   void removeFromCart(CartItem item) {
     _cart.remove(item);
     notifyListeners();
   }
 
-  /// Clear the entire cart
   void clearCart() {
     _cart.clear();
     notifyListeners();
   }
 
-  /// Increase quantity of a given CartItem
   void increaseQuantity(CartItem item) {
     item.quantity++;
     notifyListeners();
   }
 
-  /// Decrease quantity of a given CartItem.
-  /// If quantity reaches 0, remove it from the cart.
   void decreaseQuantity(CartItem item) {
     if (item.quantity > 1) {
       item.quantity--;

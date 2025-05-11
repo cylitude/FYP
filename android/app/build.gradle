@@ -7,13 +7,13 @@ plugins {
 
 android {
     namespace "com.example.virtualfashionassistant" // Ensure this matches Firebase
-    compileSdkVersion 34
+    compileSdkVersion 35
     ndkVersion "25.2.9519653"
 
     defaultConfig {
         applicationId "com.example.virtualfashionassistant" // Ensure this matches Firebase
         minSdkVersion 23
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 1
         versionName "1.0"
     }
