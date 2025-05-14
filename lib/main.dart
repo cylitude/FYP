@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
-
 import 'models/shop.dart';
 import 'theme/theme_provider.dart';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
 import 'pages/auth_page.dart';
 import 'pages/intro_page.dart';
 import 'pages/login_page.dart';
@@ -28,7 +25,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  Gemini.init(apiKey: "AIzaSyBZWMVEtxlmjU9gOplzJKI3H-W-CP7NswQ");
+  Gemini.init(apiKey: "INSERT API KEY");
 
   runApp(
     MultiProvider(
@@ -42,7 +39,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});  // ← super parameter
+  const MyApp({super.key});  
 
   @override
   Widget build(BuildContext context) {

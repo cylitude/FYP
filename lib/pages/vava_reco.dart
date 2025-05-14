@@ -1,5 +1,3 @@
-// lib/pages/vava_reco.dart
-
 import '../models/shop.dart';
 import '../models/product.dart';
 

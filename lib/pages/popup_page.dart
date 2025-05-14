@@ -4,7 +4,7 @@ import '../models/product.dart';
 import '../components/my_product_tile.dart';
 
 class PopupPage extends StatelessWidget {
-  final Product product;                        // ← required parameter
+  final Product product;                     
   const PopupPage({super.key, required this.product});
 
   @override
@@ -36,7 +36,7 @@ class PopupPage extends StatelessWidget {
                   child: Center(
                     child: MyProductTile(
                       product: product,
-                      recommendedSize: 'M',  // or pass in dynamically if you store size
+                      recommendedSize: 'XL',  
                     ),
                   ),
                 ),

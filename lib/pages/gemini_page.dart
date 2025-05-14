@@ -1,16 +1,12 @@
-// lib/pages/gemini_page.dart
-
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import '../components/my_app_bar.dart';
-
 import 'vava_reco.dart';
 import '../models/product.dart';
 import 'popup_page.dart';
-
 class GeminiPage extends StatefulWidget {
   const GeminiPage({super.key});
 
@@ -32,7 +28,6 @@ class _GeminiPageState extends State<GeminiPage> {
     super.dispose();
   }
 
-  /// Keep your old scroll helper
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // dash_chat_2 auto-scrolls for us
@@ -44,15 +39,12 @@ class _GeminiPageState extends State<GeminiPage> {
     const maxAttempts = 3;
     for (var attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
-        // Use prompt() instead of deprecated text()
         final resp = await Gemini.instance.prompt(
           parts: [Part.text(promptText)],
         );
-        // Null-safe trim
         return (resp?.output ?? '').trim();
       } catch (e) {
         if (attempt == maxAttempts) rethrow;
-        // Exponential back-off
         await Future.delayed(Duration(seconds: 2 * attempt));
       }
     }
@@ -191,7 +183,7 @@ class _GeminiPageState extends State<GeminiPage> {
           constraints: const BoxConstraints(maxWidth: 600),
           child: Column(
             children: [
-              // Header
+              
               Padding(
                 padding: const EdgeInsets.fromLTRB(25, 25, 25, 8),
                 child: Row(
@@ -218,7 +210,7 @@ class _GeminiPageState extends State<GeminiPage> {
                 ),
               ),
 
-              // Intro
+              
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 25, vertical: 8),
                 child: Text(
@@ -228,7 +220,7 @@ class _GeminiPageState extends State<GeminiPage> {
                 ),
               ),
 
-              // Chat
+              
               Expanded(
                 child: DashChat(
                   currentUser: _user,

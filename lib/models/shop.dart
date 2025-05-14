@@ -1,8 +1,5 @@
-// lib/models/shop.dart
-
 import 'package:flutter/material.dart';
 import 'product.dart';
-
 class CartItem {
   final Product product;
   final String size;
@@ -14,9 +11,8 @@ class CartItem {
     this.quantity = 1,
   });
 }
-
 class Shop extends ChangeNotifier {
-  // Your catalog with 30 keywords per item
+  
   final List<Product> _shop = [
     Product(
       name: "Cotton White Shirt",
